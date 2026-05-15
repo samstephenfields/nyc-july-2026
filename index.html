@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New York City · July 2026</title>
+  <script>if(sessionStorage.getItem('nyc_auth')!=='1')document.documentElement.style.visibility='hidden';</script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -585,6 +586,84 @@
       border-radius: 12px;
     }
 
+    /* ── Password gate ───────────────────────────────────── */
+    #auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background:
+        linear-gradient(135deg, rgba(13,27,42,0.92) 0%, rgba(27,58,92,0.88) 50%, rgba(45,106,159,0.82) 100%),
+        url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80') center/cover no-repeat;
+      align-items: center;
+      justify-content: center;
+    }
+    #auth-card {
+      text-align: center;
+      color: white;
+      padding: 48px 40px;
+    }
+    #auth-eyebrow {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      margin-bottom: 14px;
+    }
+    #auth-title {
+      font-family: Georgia, serif;
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    #auth-subtitle {
+      font-family: Georgia, serif;
+      font-size: 17px;
+      color: #a8c8e0;
+      font-style: italic;
+      margin-bottom: 40px;
+    }
+    #auth-form { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    #auth-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 13px 28px;
+      font-size: 16px;
+      color: white;
+      text-align: center;
+      outline: none;
+      width: 280px;
+      font-family: Arial, sans-serif;
+      letter-spacing: 2px;
+    }
+    #auth-input::placeholder { color: rgba(255,255,255,0.35); letter-spacing: 0; }
+    #auth-input:focus { border-color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.15); }
+    #auth-submit {
+      background: white;
+      color: #1b3a5c;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 36px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #auth-submit:hover { background: #d0e8f5; }
+    #auth-error {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: #ffaaaa;
+      min-height: 20px;
+      margin-top: 4px;
+    }
+
     footer {
       text-align: center;
       padding: 32px;
@@ -601,6 +680,19 @@
   </style>
 </head>
 <body>
+
+<div id="auth-overlay">
+  <div id="auth-card">
+    <div id="auth-eyebrow">Lydia's 30th Birthday</div>
+    <div id="auth-title">New York City</div>
+    <div id="auth-subtitle">17 – 25 July 2026</div>
+    <form id="auth-form" onsubmit="checkPassword(event)">
+      <input type="password" id="auth-input" placeholder="Password" autocomplete="current-password">
+      <button type="submit" id="auth-submit">Enter</button>
+    </form>
+    <div id="auth-error"></div>
+  </div>
+</div>
 
 <!-- ════════════════════ HERO ════════════════════ -->
 <div class="hero">
@@ -1564,6 +1656,39 @@
 </footer>
 
 <script>
+  // ── Password gate ─────────────────────────────────────────
+  const AUTH_HASH = 'fd3e9ddb3d5838f87c36164e013dff106ef788cf559d65e51c499d11fcf7fb79';
+
+  async function hashString(s) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function checkPassword(e) {
+    e.preventDefault();
+    const val = document.getElementById('auth-input').value;
+    const hash = await hashString(val);
+    if (hash === AUTH_HASH) {
+      sessionStorage.setItem('nyc_auth', '1');
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.documentElement.style.visibility = 'visible';
+    } else {
+      const err = document.getElementById('auth-error');
+      err.textContent = 'Incorrect password — try again';
+      document.getElementById('auth-input').value = '';
+      document.getElementById('auth-input').focus();
+    }
+  }
+
+  if (sessionStorage.getItem('nyc_auth') === '1') {
+    document.documentElement.style.visibility = 'visible';
+  } else {
+    const overlay = document.getElementById('auth-overlay');
+    overlay.style.display = 'flex';
+    document.documentElement.style.visibility = 'visible';
+    setTimeout(() => document.getElementById('auth-input').focus(), 50);
+  }
+
   // ── Map setup ────────────────────────────────────────────
   const map = L.map('map', { zoomControl: true }).setView([40.710, -73.940], 11);
 
