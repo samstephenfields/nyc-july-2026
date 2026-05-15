@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New York City · July 2026</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #faf9f7;
+      color: #1a1a1a;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(13,27,42,0.82) 0%, rgba(27,58,92,0.72) 50%, rgba(45,106,159,0.58) 100%),
+        url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1600&q=80') center/cover no-repeat;
+      color: white;
+      padding: 60px 40px 50px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-eyebrow {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 400;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      color: #a8c8e0;
+      font-style: italic;
+      margin-bottom: 28px;
+    }
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: #d0e8f5;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.12s;
+      user-select: none;
+    }
+    .pill:hover {
+      background: rgba(255,255,255,0.24);
+      border-color: rgba(255,255,255,0.45);
+      transform: translateY(-2px);
+    }
+    .pill:active { transform: translateY(0); }
+
+    /* ── Map ──────────────────────────────────────────────── */
+    .map-section {
+      padding: 0;
+    }
+    #map {
+      height: 480px;
+      width: 100%;
+    }
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 14px 24px;
+      background: #1a2a3a;
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #ccc;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content ─────────────────────────────────────── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .section-title {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 28px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0ddd8;
+    }
+
+    /* ── Day cards ────────────────────────────────────────── */
+    .days { display: flex; flex-direction: column; gap: 2px; }
+
+    .day-card {
+      background: white;
+      border: 1px solid #e8e4df;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: stretch;
+      cursor: pointer;
+      user-select: none;
+    }
+    .day-num {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1b3a5c;
+      color: white;
+      min-width: 72px;
+      padding: 16px 8px;
+      font-family: 'Arial', sans-serif;
+    }
+    .day-num .weekday {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      margin-bottom: 2px;
+    }
+    .day-num .date-num {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .day-num .month {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      margin-top: 2px;
+    }
+    .day-summary {
+      flex: 1;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .day-title {
+      font-size: 18px;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .day-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .tag {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #f0ede8;
+      color: #555;
+    }
+    .tag.booked { background: #e8f0fb; color: #2d5fa3; }
+    .tag.food { background: #fdf0e8; color: #a0522d; }
+    .tag.explore { background: #eaf5ea; color: #2d6b2d; }
+
+    .day-chevron {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      color: #aaa;
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    .day-card.open .day-chevron { transform: rotate(180deg); }
+
+    .day-body {
+      display: none;
+      padding: 24px 24px 24px 92px;
+      border-top: 1px solid #f0ece7;
+    }
+    .day-card.open .day-body { display: block; }
+
+    /* timeline inside day body */
+    .timeline { position: relative; }
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 28px;
+      bottom: 0;
+      width: 2px;
+      background: #e8e4df;
+    }
+    .tl-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .tl-icon.activity { background: #e8f0fb; }
+    .tl-icon.food-b { background: #fff8e1; }
+    .tl-icon.food-l { background: #fff3e0; }
+    .tl-icon.food-d { background: #fce4ec; }
+    .tl-icon.transport { background: #f3e5f5; }
+    .tl-icon.hotel { background: #e0f2f1; }
+    .tl-icon.booked { background: #e8f5e9; }
+
+    .tl-content { flex: 1; }
+    .tl-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+    .tl-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .tl-desc {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .tl-cost {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #2d6b2d;
+      margin-top: 4px;
+    }
+    .tl-tip {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #888;
+      font-style: italic;
+      margin-top: 3px;
+    }
+
+    /* ── Budget section ───────────────────────────────────── */
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .budget-card {
+      background: white;
+      border: 1px solid #e8e4df;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .budget-card .amount {
+      font-size: 28px;
+      font-weight: 300;
+      color: #1b3a5c;
+      margin-bottom: 4px;
+    }
+    .budget-card .label {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .budget-note {
+      background: #f5f0e8;
+      border-left: 3px solid #c8a84b;
+      border-radius: 0 6px 6px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* ── Hotels section ───────────────────────────────────── */
+    .hotels-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) { .hotels-grid { grid-template-columns: 1fr; } }
+    .hotel-card {
+      background: white;
+      border: 1px solid #e8e4df;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .hotel-card .hotel-nights {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      background: #1b3a5c;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .hotel-card h3 { font-size: 17px; margin-bottom: 6px; }
+    .hotel-card .address {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    /* ── Packing tips ─────────────────────────────────────── */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .tip-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .tip-icon { font-size: 20px; flex-shrink: 0; }
+    .tip-text { font-size: 14px; color: #555; line-height: 1.5; }
+
+    /* ── Packing list ────────────────────────────────────── */
+    .pack-group-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .pack-group-label.her { background: #fdf0f6; color: #a0407a; }
+    .pack-group-label.him { background: #e8f0fb; color: #2d5fa3; }
+    .pack-group-label.both { background: #f0ece7; color: #555; }
+    .pack-section {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin: 14px 0 6px;
+    }
+    .pack-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .pack-list li {
+      font-size: 13px;
+      color: #444;
+      padding: 4px 0;
+      border-bottom: 1px solid #f5f2ee;
+      line-height: 1.5;
+    }
+    .pack-list li::before {
+      content: '·';
+      color: #c0b090;
+      margin-right: 8px;
+    }
+    .pack-highlight {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    /* ── Booking checklist ───────────────────────────────── */
+    .checklist-intro {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .checklist-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 640px) { .checklist-columns { grid-template-columns: 1fr; } }
+    .checklist-group {
+      background: white;
+      border: 1px solid #e8e4df;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .checklist-group-header {
+      padding: 12px 18px;
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .checklist-group-header.booked-header {
+      background: #e8f5e9;
+      color: #2d6b2d;
+    }
+    .checklist-group-header.todo-header {
+      background: #fff8e1;
+      color: #8a6a00;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 18px;
+      border-top: 1px solid #f0ece7;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .checklist-item:hover { background: #faf9f7; }
+    .checklist-item input[type="checkbox"] {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: #1b3a5c;
+    }
+    .checklist-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+      transition: color 0.15s;
+    }
+    .checklist-detail {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.5;
+    }
+    .checklist-item.done .checklist-name {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+    .checklist-urgent {
+      display: inline-block;
+      background: #fde8e8;
+      color: #c0392b;
+      font-size: 10px;
+      font-family: 'Arial', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Weather section ─────────────────────────────────── */
+    .weather-section {
+      background: #eef4fa;
+      border-top: 1px solid #d0e0ef;
+      border-bottom: 1px solid #d0e0ef;
+      padding: 32px 24px;
+    }
+    .weather-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .weather-current {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 28px;
+      align-items: center;
+      background: white;
+      border: 1px solid #ccddf0;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 520px) { .weather-current { grid-template-columns: 1fr; text-align: center; } }
+    .weather-icon-big { font-size: 52px; line-height: 1; margin-bottom: 6px; }
+    .weather-temp-big {
+      font-size: 52px;
+      font-weight: 300;
+      color: #1b3a5c;
+      line-height: 1;
+    }
+    .weather-desc { font-family: Arial, sans-serif; font-size: 13px; color: #777; margin-top: 4px; }
+    .weather-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 14px;
+    }
+    .weather-stat .stat-val {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .weather-stat .stat-lbl {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #999;
+      margin-top: 1px;
+    }
+    .forecast-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 600px) { .forecast-strip { grid-template-columns: repeat(4, 1fr); } }
+    .forecast-day {
+      background: white;
+      border: 1px solid #ccddf0;
+      border-radius: 10px;
+      padding: 12px 6px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    .fc-day { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #999; margin-bottom: 4px; }
+    .fc-icon { font-size: 22px; margin: 4px 0; }
+    .fc-hi { font-size: 14px; font-weight: 700; color: #c0392b; }
+    .fc-lo { font-size: 12px; color: #2d6a9f; margin-top: 1px; }
+    .fc-rain { font-size: 10px; color: #2d8c4e; margin-top: 3px; }
+    .weather-meta {
+      margin-top: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #aaa;
+      text-align: right;
+    }
+    .weather-error {
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #888;
+      background: white;
+      border: 1px solid #ccddf0;
+      border-radius: 12px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #bbb;
+      border-top: 1px solid #e8e4df;
+    }
+
+    @media (max-width: 640px) {
+      .day-body { padding-left: 24px; }
+      .container { padding: 28px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════ HERO ════════════════════ -->
+<div class="hero">
+  <div class="hero-eyebrow">A Trip for Two</div>
+  <h1>New York City</h1>
+  <div class="hero-subtitle">17 – 25 July 2026</div>
+  <div class="hero-pills">
+    <span class="pill" onclick="jumpToDay('day-17')">✈ 8 Nights</span>
+    <span class="pill" onclick="jumpToSection('accommodation')">🏨 2 Hotels</span>
+    <span class="pill" onclick="jumpToDay('day-19')">⚽ World Cup Final</span>
+    <span class="pill" onclick="jumpToSection('book-in-advance')">🎭 3 Booked Experiences</span>
+    <span class="pill" onclick="jumpToDay('day-24')">⚾ Mets vs Dodgers</span>
+    <span class="pill" onclick="jumpToDay('day-21')">🏖 Coney Island</span>
+  </div>
+</div>
+
+<!-- ════════════════════ MAP ════════════════════ -->
+<div class="map-section">
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#2d6a9f"></div> Hotels</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6a2d9f"></div> Booked experiences</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2d8c4e"></div> Explore / attractions</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e05c2a"></div> Food highlights</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#888"></div> Transport</div>
+  </div>
+</div>
+
+<!-- ════════════════════ WEATHER ════════════════════ -->
+<div class="weather-section">
+  <div class="weather-inner">
+    <div class="section-title" style="margin-bottom:20px">New York City · Live Weather</div>
+    <div id="weather-content">
+      <div class="weather-error">Loading weather data…</div>
+    </div>
+    <div class="weather-meta" id="weather-meta"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ MAIN ════════════════════ -->
+<div class="container">
+
+  <!-- ── Hotels ── -->
+  <div class="section-title" id="accommodation">Accommodation</div>
+  <div class="hotels-grid" style="margin-bottom:48px">
+    <div class="hotel-card">
+      <div class="hotel-nights">Fri 17 – Mon 20 Jul</div>
+      <h3>Pointe Plaza Hotel</h3>
+      <div class="address">2 Franklin Avenue<br>Williamsburg, Brooklyn, NY 11249</div>
+    </div>
+    <div class="hotel-card">
+      <div class="hotel-nights">Mon 20 – Sat 25 Jul</div>
+      <h3>Freehand New York</h3>
+      <div class="address">23 Lexington Avenue<br>Gramercy, New York, NY 10010</div>
+    </div>
+  </div>
+
+  <!-- ── Booking checklist ── -->
+  <div id="book-in-advance" style="margin-bottom:48px">
+    <div class="section-title">Book in Advance</div>
+    <p class="checklist-intro">Tick items off as you confirm them. Items marked <span class="checklist-urgent">urgent</span> sell out well ahead — book these first.</p>
+    <div id="checklist-container">
+      <div class="checklist-group" style="max-width:600px">
+        <div class="checklist-group-header" style="background:#f5f0e8;color:#555" id="checklist-count">0 of 11 confirmed</div>
+
+        <label class="checklist-item" id="ci-liberty" onclick="toggleCheck('ci-liberty')">
+          <input type="checkbox" id="cb-ci-liberty" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Statue of Liberty ferry <span class="checklist-urgent">urgent</span></div><div class="checklist-detail">22 July · statuecruises.com · Liberty Island — sells out months ahead</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-mets" onclick="toggleCheck('ci-mets')">
+          <input type="checkbox" id="cb-ci-mets" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Mets vs LA Dodgers <span class="checklist-urgent">urgent</span></div><div class="checklist-detail">24 July · 7:10pm · mlb.com · Dodgers series sells fast</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-wceve" onclick="toggleCheck('ci-wceve')">
+          <input type="checkbox" id="cb-ci-wceve" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">WC 3rd Place Playoff — book a bar table</div><div class="checklist-detail">18 July evening · Nevada Smiths or Smithfield Hall · fills fast on WC night</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-wcbar" onclick="toggleCheck('ci-wcbar')">
+          <input type="checkbox" id="cb-ci-wcbar" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">WC Final watch venue</div><div class="checklist-detail">19 July · Call/email bar to reserve a table</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-911" onclick="toggleCheck('ci-911')">
+          <input type="checkbox" id="cb-ci-911" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">9/11 Memorial &amp; Museum</div><div class="checklist-detail">19 July · 911memorial.org · Timed entry — book in advance</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-esb" onclick="toggleCheck('ci-esb')">
+          <input type="checkbox" id="cb-ci-esb" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Empire State Building</div><div class="checklist-detail">18 July · esbnyc.com · Skip-the-line timed entry</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-peterluger" onclick="toggleCheck('ci-peterluger')">
+          <input type="checkbox" id="cb-ci-peterluger" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Peter Luger Steak House</div><div class="checklist-detail">17 July · peterluger.com · Books up fast — cash only restaurant</div></div>
+        </label>
+
+        <label class="checklist-item" id="ci-woodbury" onclick="toggleCheck('ci-woodbury')">
+          <input type="checkbox" id="cb-ci-woodbury" onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Woodbury Common bus tickets</div><div class="checklist-detail">23 July · coachusa.com · Book round-trip in advance</div></div>
+        </label>
+
+        <label class="checklist-item done" id="ci-gatsby" onclick="toggleCheck('ci-gatsby')">
+          <input type="checkbox" id="cb-ci-gatsby" checked onclick="event.stopPropagation()">
+          <div><div class="checklist-name">The Great Gatsby: Immersive Experience</div><div class="checklist-detail">20 July · Evening — already booked ✓</div></div>
+        </label>
+
+        <label class="checklist-item done" id="ci-spa" onclick="toggleCheck('ci-spa')">
+          <input type="checkbox" id="cb-ci-spa" checked onclick="event.stopPropagation()">
+          <div><div class="checklist-name">QC New York Spa</div><div class="checklist-detail">22 July · Governor's Island — already booked ✓</div></div>
+        </label>
+
+        <label class="checklist-item done" id="ci-cake" onclick="toggleCheck('ci-cake')">
+          <input type="checkbox" id="cb-ci-cake" checked onclick="event.stopPropagation()">
+          <div><div class="checklist-name">Two Strangers Carry a Cake</div><div class="checklist-detail">23 July · Evening — already booked ✓</div></div>
+        </label>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Itinerary ── -->
+  <div class="section-title">Day by Day</div>
+  <div class="days">
+
+    <!-- DAY 1: July 17 -->
+    <div class="day-card open" id="day-17">
+      <div class="day-header" onclick="toggleDay('day-17')">
+        <div class="day-num">
+          <span class="weekday">Fri</span>
+          <span class="date-num">17</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Arrival &amp; Williamsburg</div>
+          <div class="day-tags">
+            <span class="tag">✈ JFK 12:29</span>
+            <span class="tag">🏨 Pointe Plaza</span>
+            <span class="tag explore">Williamsburg</span>
+            <span class="tag explore">Domino Park</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon transport">✈</div>
+            <div class="tl-content">
+              <div class="tl-label">Arrival — 12:29pm</div>
+              <div class="tl-title">Land at JFK</div>
+              <div class="tl-desc">You're in Brooklyn, which is actually closer to JFK than Manhattan. Best options: <strong>Uber/Lyft direct to Williamsburg</strong> (~$45–55, 35–45 mins, easiest with luggage) or <strong>AirTrain + A train</strong> to Broadway Junction then J/M to Williamsburg (~75 mins, ~$9/person).</div>
+              <div class="tl-cost">Uber: ~$50 total · Subway: ~$9/person</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon hotel">🏨</div>
+            <div class="tl-content">
+              <div class="tl-label">~2:00pm — Check-in</div>
+              <div class="tl-title">Pointe Plaza Hotel, Williamsburg</div>
+              <div class="tl-desc">Drop bags. Standard check-in is 3pm but ask if a room is ready early. If not, they'll store luggage and you can explore the neighbourhood straight away.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🥙</div>
+            <div class="tl-content">
+              <div class="tl-label">Late Lunch</div>
+              <div class="tl-title">Smorgasburg — Williamsburg Waterfront</div>
+              <div class="tl-desc">July 17 is a Friday — Smorgasburg runs Fridays (and Saturdays) at the East River waterfront. NYC's legendary open-air food market with dozens of vendors. Perfect first taste of New York.</div>
+              <div class="tl-cost">~$15–20/person</div>
+              <div class="tl-tip">💡 Also open Saturdays, so you can come back on the 18th if you want more</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌊</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">Domino Park &amp; East River Waterfront</div>
+              <div class="tl-desc">A beautiful waterfront park a short walk from the hotel with sweeping views of the Manhattan skyline across the river. Walk north to the East River State Park for more open waterfront.</div>
+              <div class="tl-cost">Free</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🛍</div>
+            <div class="tl-content">
+              <div class="tl-label">Early Evening</div>
+              <div class="tl-title">Bedford Avenue — Williamsburg's Main Strip</div>
+              <div class="tl-desc">Williamsburg's main artery is packed with independent boutiques, record shops, cafés, and bars. A great first wander to get your bearings in the neighbourhood.</div>
+              <div class="tl-cost">Free</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-d">🥩</div>
+            <div class="tl-content">
+              <div class="tl-label">Dinner</div>
+              <div class="tl-title">Peter Luger Steak House</div>
+              <div class="tl-desc">One of the most famous steakhouses in America — and it's right here in Williamsburg (178 Broadway), about a 10-minute walk from the hotel. Cash only, no frills, extraordinary porterhouse. Book well in advance. A perfect first-night treat.</div>
+              <div class="tl-cost">~$120–150 for two (cash only)</div>
+              <div class="tl-tip">💡 Budget alternative: Lilia (567 Union Ave) — exceptional pasta, one of Brooklyn's best restaurants</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2: July 18 -->
+    <div class="day-card" id="day-18">
+      <div class="day-header" onclick="toggleDay('day-18')">
+        <div class="day-num">
+          <span class="weekday">Sat</span>
+          <span class="date-num">18</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Central Park, Empire State &amp; WC 3rd Place</div>
+          <div class="day-tags">
+            <span class="tag explore">🌳 Central Park</span>
+            <span class="tag explore">🏙 Empire State</span>
+            <span class="tag booked">⚽ 3rd Place Playoff</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">🥐</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Ess-a-Bagel</div>
+              <div class="tl-desc">Legendary NYC bagel shop. Get a classic everything bagel with lox and cream cheese. There's a Midtown location on 3rd Ave — grab and go or sit in.</div>
+              <div class="tl-cost">~$10–12 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌳</div>
+            <div class="tl-content">
+              <div class="tl-label">Morning</div>
+              <div class="tl-title">Central Park — South to North</div>
+              <div class="tl-desc">Enter at 59th St (Columbus Circle). Stroll past Sheep Meadow, Bethesda Fountain &amp; Terrace, The Lake, Strawberry Fields (John Lennon memorial), and Belvedere Castle. Allow 2–3 hours to wander.</div>
+              <div class="tl-cost">Free</div>
+              <div class="tl-tip">💡 Rent a rowboat on The Lake — $20 for 1 hour, very romantic</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🥗</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch</div>
+              <div class="tl-title">Picnic in the Park or Shake Shack (Madison Square Park)</div>
+              <div class="tl-desc">Pick up sandwiches from a deli on the Upper West Side and eat on the grass, or head south to the original Shake Shack at Madison Square Park.</div>
+              <div class="tl-cost">~$15/person</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🏙</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">Empire State Building Observatory</div>
+              <div class="tl-desc">Walk or subway down from Central Park to 34th St &amp; 5th Ave. The main observation deck is on the 86th floor with open-air 360° views — one of the most iconic vantage points in the world. Book timed-entry tickets online in advance to skip the queue. The top-floor (102nd) deck costs more but the 86th is the classic experience.</div>
+              <div class="tl-cost">86th floor: ~$44/person · 102nd floor add-on: ~$20 extra</div>
+              <div class="tl-tip">💡 Book timed-entry at esbnyc.com — walk-up queues can be 2+ hours</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">⚽</div>
+            <div class="tl-content">
+              <div class="tl-label">Evening — World Cup 3rd Place Playoff</div>
+              <div class="tl-title">Watch the 3rd Place Match at a Football Bar</div>
+              <div class="tl-desc">The FIFA World Cup 3rd place playoff takes place on July 18 — the day before the Final. Kick-off is typically 6pm ET. NYC will already be buzzing with fans from the finalist nations pouring into the city, making this a brilliant night to be watching football in a bar. Best spots:<br><br>
+              <strong>Nevada Smiths</strong> (100 3rd Ave, East Village) — NYC's most famous football bar, a proper supporter's pub atmosphere with wall-to-wall screens.<br><br>
+              <strong>Smithfield Hall</strong> (339 W 49th St, Midtown West) — massive multi-screen bar, one of the best in the city for a big match.<br><br>
+              <strong>Rarely Ever Sober / Playwright Irish Pub</strong> (Midtown) — packed with travelling fans on World Cup nights, great atmosphere.<br><br>
+              The build-up to the Final means the whole city feels like a carnival — even the walk between bars is an event.</div>
+              <div class="tl-cost">Dinner + drinks at the bar: ~$50–70 for two</div>
+              <div class="tl-tip">💡 Book a table at your chosen bar in advance — 3rd place night with the Final eve crowd means everywhere fills fast</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3: July 19 -->
+    <div class="day-card" id="day-19">
+      <div class="day-header" onclick="toggleDay('day-19')">
+        <div class="day-num">
+          <span class="weekday">Sun</span>
+          <span class="date-num">19</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">9/11 Memorial, Chinatown &amp; WC Final</div>
+          <div class="day-tags">
+            <span class="tag explore">🕊 9/11 Memorial</span>
+            <span class="tag explore">🥢 Chinatown</span>
+            <span class="tag explore">Brooklyn Bridge</span>
+            <span class="tag booked">⚽ WC Final</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">🥞</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Clinton St. Baking Company</div>
+              <div class="tl-desc">Famous for its pancakes and eggs benedict. Arrive early — there's often a queue on weekends, but it moves quickly. On the Lower East Side.</div>
+              <div class="tl-cost">~$20–25 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🕊</div>
+            <div class="tl-content">
+              <div class="tl-label">Morning — Timed Entry Required</div>
+              <div class="tl-title">9/11 Memorial &amp; Museum</div>
+              <div class="tl-desc">One of the most moving places in New York. The twin reflecting pools sit in the exact footprints of the Twin Towers, surrounded by the names of nearly 3,000 victims. The underground museum tells the full story of the day. Allow 2–3 hours. Book timed-entry tickets in advance at 911memorial.org — it can sell out.</div>
+              <div class="tl-cost">Memorial: free · Museum: ~$30/person</div>
+              <div class="tl-tip">💡 Book the first entry slot of the day — quieter, and you'll be finished by late morning</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🥢</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch</div>
+              <div class="tl-title">Chinatown</div>
+              <div class="tl-desc">A 15-minute walk north from the 9/11 Memorial. NYC's Chinatown is one of the most vibrant in the world. Head to <strong>Joe's Shanghai</strong> (9 Pell St) for soup dumplings, or <strong>Nom Wah Tea Parlor</strong> (13 Doyers St) for NYC's oldest dim sum — open since 1920, on a curved alleyway once called the "Bloody Angle".</div>
+              <div class="tl-cost">~$15–20/person</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌉</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">Brooklyn Bridge Walk &amp; DUMBO</div>
+              <div class="tl-desc">Walk south from Chinatown to the Brooklyn Bridge entrance (10 mins) and cross on foot — about 45 mins. Explore DUMBO on the Brooklyn side: great views of the Manhattan skyline, Jane's Carousel, and independent boutiques.</div>
+              <div class="tl-cost">Free</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon booked">⚽</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon / Evening — Destination TBC</div>
+              <div class="tl-title">FIFA World Cup Final Watch-Along</div>
+              <div class="tl-desc">The 2026 World Cup Final takes place on July 19th at MetLife Stadium in New Jersey — right next door to NYC. Kick-off is likely 6pm ET. The atmosphere in Manhattan will be electric. Top spots to watch: Nevada Smiths (East Village — NYC's oldest football bar), Smithfield Hall (Midtown West), or any Irish bar in Midtown. Some venues will have large outdoor screens.</div>
+              <div class="tl-cost">Drinks at bar: ~$30–50 for two</div>
+              <div class="tl-tip">💡 Book a table at a sports bar in advance — they'll fill up fast for the Final</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 4: July 20 -->
+    <div class="day-card" id="day-20">
+      <div class="day-header" onclick="toggleDay('day-20')">
+        <div class="day-num">
+          <span class="weekday">Mon</span>
+          <span class="date-num">20</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Hotel Move &amp; The Great Gatsby</div>
+          <div class="day-tags">
+            <span class="tag">🏨 Freehand New York</span>
+            <span class="tag booked">🎭 The Great Gatsby</span>
+            <span class="tag explore">Gramercy</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">☕</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Sadelle's — SoHo</div>
+              <div class="tl-desc">One of NYC's best brunch spots. Stunning towers of bagels with lox, smoked fish platters, and French toast. A treat to start a big day.</div>
+              <div class="tl-cost">~$25–35 each (splurge morning)</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon hotel">🏨</div>
+            <div class="tl-content">
+              <div class="tl-label">Check-out / Check-in</div>
+              <div class="tl-title">Move to Freehand New York</div>
+              <div class="tl-desc">Check out of Pointe Plaza and take the subway into Manhattan (L train from Williamsburg, ~20 mins). Check in to Freehand New York on Lexington Avenue, Gramercy. Drop bags and explore the neighbourhood.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌳</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">Gramercy Park &amp; Neighbourhood</div>
+              <div class="tl-desc">Gramercy Park is a private park (key-holders only) but beautiful to walk around. The Freehand has one of the best rooftop bars in NYC — grab a cocktail and enjoy the city views.</div>
+              <div class="tl-cost">Free to walk around · Cocktails ~$18 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🥙</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch</div>
+              <div class="tl-title">Eisenberg's Sandwich Shop</div>
+              <div class="tl-desc">A classic old-school NYC lunch counter on 5th Ave near Flatiron — been open since 1929. Tuna melts, egg salad, and egg creams. Great slice of old New York.</div>
+              <div class="tl-cost">~$15–20/person</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon booked">🎭</div>
+            <div class="tl-content">
+              <div class="tl-label">Evening — Pre-booked</div>
+              <div class="tl-title">The Great Gatsby: Immersive Experience</div>
+              <div class="tl-desc">Step into the world of Fitzgerald's Jazz Age New York. An immersive cocktail experience with spectacular sets, characters, and live performance. Dress to impress — 1920s glamour optional but encouraged.</div>
+              <div class="tl-tip">💡 Grab dinner before or after — the experience typically lasts 2–3 hours</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-d">🍹</div>
+            <div class="tl-content">
+              <div class="tl-label">After Show</div>
+              <div class="tl-title">Cocktails — Death &amp; Co (East Village)</div>
+              <div class="tl-desc">One of the world's best cocktail bars, right in the East Village. No booking needed — turn up and wait at the bar if there's a queue. Perfect nightcap after Gatsby.</div>
+              <div class="tl-cost">~$20/cocktail</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 5: July 21 -->
+    <div class="day-card" id="day-21">
+      <div class="day-header" onclick="toggleDay('day-21')">
+        <div class="day-num">
+          <span class="weekday">Tue</span>
+          <span class="date-num">21</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Coney Island</div>
+          <div class="day-tags">
+            <span class="tag explore">🎡 Coney Island</span>
+            <span class="tag explore">🏖 Beach</span>
+            <span class="tag explore">Luna Park</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">🥐</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Russ &amp; Daughters Cafe — Lower East Side</div>
+              <div class="tl-desc">A New York institution since 1914. Smoked salmon, herring, and bagels done properly. A short subway ride from Gramercy. Worth the detour before heading to Coney Island.</div>
+              <div class="tl-cost">~$20–25 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon transport">🚇</div>
+            <div class="tl-content">
+              <div class="tl-label">Getting There</div>
+              <div class="tl-title">Subway to Coney Island</div>
+              <div class="tl-desc">Take the Q or D train from Union Square/14th St to Coney Island–Stillwell Ave. About 50 minutes — a classic NYC experience watching the city give way to beachside Brooklyn.</div>
+              <div class="tl-cost">$2.90/person each way</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🎡</div>
+            <div class="tl-content">
+              <div class="tl-label">Mid-morning to Afternoon</div>
+              <div class="tl-title">Coney Island Boardwalk &amp; Luna Park</div>
+              <div class="tl-desc">Walk the famous boardwalk, ride the Cyclone (a 1927 wooden roller coaster — genuinely thrilling), and explore Luna Park. The Wonder Wheel is iconic. The beach is a proper sandy beach — great for a swim in July.</div>
+              <div class="tl-cost">Luna Park wristband: ~$40/person · Beach: free</div>
+              <div class="tl-tip">💡 The Wonder Wheel gondola cars are a brilliant way to see the whole of Coney Island</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🌭</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch</div>
+              <div class="tl-title">Nathan's Famous</div>
+              <div class="tl-desc">The original Nathan's Famous hot dog stand on Surf Avenue — established 1916, home of the famous 4th of July hot dog eating contest. A Coney Island essential. Get a hot dog and crinkle-cut fries.</div>
+              <div class="tl-cost">~$10–15 for two</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🏖</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">Beach &amp; Boardwalk Games</div>
+              <div class="tl-desc">Spend the afternoon on the beach — it's a proper Atlantic beach, great for swimming in July (water is warm). Walk the boardwalk all the way to Brighton Beach ("Little Odessa") for a different flavour of Brooklyn.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-d">🥟</div>
+            <div class="tl-content">
+              <div class="tl-label">Dinner on the way back</div>
+              <div class="tl-title">Xi'an Famous Foods — East Village</div>
+              <div class="tl-desc">Hand-pulled noodles and spicy lamb burgers from a celebrated small chain. The East Village location is the original. Cheap, delicious, and entirely unlike anything else in NYC.</div>
+              <div class="tl-cost">~$15–20 for two</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 6: July 22 -->
+    <div class="day-card" id="day-22">
+      <div class="day-header" onclick="toggleDay('day-22')">
+        <div class="day-num">
+          <span class="weekday">Wed</span>
+          <span class="date-num">22</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Statue of Liberty &amp; QC Spa</div>
+          <div class="day-tags">
+            <span class="tag explore">🗽 Statue of Liberty</span>
+            <span class="tag booked">♨ QC New York Spa</span>
+            <span class="tag explore">🏝 Governor's Island</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">🍳</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Tarallucci e Vino — Gramercy</div>
+              <div class="tl-desc">A relaxed Italian café a short walk from the Freehand. Great coffee, pastries, and eggs. Early start today — you'll want to be at Battery Park by 8:30am.</div>
+              <div class="tl-cost">~$15–20 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🗽</div>
+            <div class="tl-content">
+              <div class="tl-label">8:30am — Book in Advance</div>
+              <div class="tl-title">Statue of Liberty</div>
+              <div class="tl-desc">Take the first ferry from Battery Park at 8:30am. Stick to <strong>Liberty Island only</strong> today (skip Ellis Island) — you need to be back at Battery Park by 10:30am to make the Governor's Island ferry in time for your 11am spa. Liberty Island alone is stunning: close-up views of the statue, the museum in the pedestal, and incredible Manhattan skyline views from the water.<br><br>
+              <strong>Ticket types:</strong> Reserve (grounds + exterior) or Monument (pedestal access). Crown tickets sell out months ahead — book at statuecruises.com.</div>
+              <div class="tl-cost">Reserve: ~$24/person · Monument: ~$32 · Crown: ~$32 (very limited)</div>
+              <div class="tl-tip">💡 Take the first ferry and you'll be one of very few people on the island — magical before the crowds arrive</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon transport">⛴</div>
+            <div class="tl-content">
+              <div class="tl-label">~10:35am — Getting to the Spa</div>
+              <div class="tl-title">Ferry to Governor's Island</div>
+              <div class="tl-desc">The Governor's Island ferry departs from the Battery Maritime Building — a 5-minute walk from the Statue of Liberty terminal. The crossing is just 7 minutes. You'll arrive at Governor's Island around 10:45am — perfect for your 11am spa check-in.</div>
+              <div class="tl-cost">~$4 round trip</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon booked">♨</div>
+            <div class="tl-content">
+              <div class="tl-label">11am–4pm — Pre-booked · Lunch included</div>
+              <div class="tl-title">QC New York — Spa &amp; Wellness</div>
+              <div class="tl-desc">A world-class Italian-style spa on Governor's Island with thermal pools, saunas, hammam, and outdoor baths with spectacular views of the Statue of Liberty and Manhattan skyline. Completely unique in NYC. Lunch is included — no need to eat beforehand.</div>
+              <div class="tl-tip">💡 The outdoor pools with the Manhattan skyline framed behind the Statue of Liberty are the highlight — make time for these early</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🚲</div>
+            <div class="tl-content">
+              <div class="tl-label">4pm onwards — Optional</div>
+              <div class="tl-title">Explore Governor's Island</div>
+              <div class="tl-desc">Ferries back to Manhattan run until 7pm in summer, so you have time after the spa. Rent bikes and cycle the car-free perimeter — views of Lower Manhattan, Brooklyn, and the Statue of Liberty. The island also has art installations and hammocks.</div>
+              <div class="tl-cost">Bike rental: ~$12/hour</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-d">🍜</div>
+            <div class="tl-content">
+              <div class="tl-label">Dinner</div>
+              <div class="tl-title">Gran Electrica — DUMBO</div>
+              <div class="tl-desc">Excellent Mexican food in a beautiful space under the Brooklyn Bridge. Close to both the Governor's Island ferry and Barclays Center. Great margaritas after a day in the pools.</div>
+              <div class="tl-cost">~$50–70 for two</div>
+              <div class="tl-tip">💡 Budget alternative: Lucali (Carroll Gardens) — arguably the best pizza in New York. Cash only, bring wine, no reservations — join the queue at 4pm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 7: July 23 -->
+    <div class="day-card" id="day-23">
+      <div class="day-header" onclick="toggleDay('day-23')">
+        <div class="day-num">
+          <span class="weekday">Thu</span>
+          <span class="date-num">23</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Woodbury Common &amp; Two Strangers</div>
+          <div class="day-tags">
+            <span class="tag explore">🛍 Woodbury Common Outlets</span>
+            <span class="tag booked">🎂 Two Strangers Carry a Cake</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">☕</div>
+            <div class="tl-content">
+              <div class="tl-label">~7:45am — Quick Breakfast</div>
+              <div class="tl-title">Bagel &amp; Coffee Near the Freehand</div>
+              <div class="tl-desc">Early start today — grab a bagel and coffee from a corner deli near the hotel. You need to be at Port Authority Bus Terminal (42nd St &amp; 8th Ave) by 8:45am to catch the 9am bus.</div>
+              <div class="tl-cost">~$6–8 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon transport">🚌</div>
+            <div class="tl-content">
+              <div class="tl-label">9:00am — Bus from Midtown</div>
+              <div class="tl-title">Coach USA to Woodbury Common Premium Outlets</div>
+              <div class="tl-desc">Buses depart from Port Authority Bus Terminal (42nd St &amp; 8th Ave). The Short Line/Coach USA service runs directly to Woodbury Common — about 75–90 minutes. Buses run roughly every 30–60 mins. Book round-trip tickets in advance at coachusa.com to guarantee your seat.</div>
+              <div class="tl-cost">~$20–25 per person round trip</div>
+              <div class="tl-tip">💡 Take the earliest bus to maximise shopping time — last buses back are late evening so no rush to return early</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🛍</div>
+            <div class="tl-content">
+              <div class="tl-label">~10:30am–3:30pm</div>
+              <div class="tl-title">Woodbury Common Premium Outlets</div>
+              <div class="tl-desc">The best outlet shopping in the USA — 250+ stores with genuine discounts of 25–65% off retail. Designer brands (Gucci, Prada, Burberry, Versace, Saint Laurent), American classics (Ralph Lauren, Calvin Klein, Tommy Hilfiger, J.Crew), and sportswear (Nike, Adidas, Under Armour) all under one roof in the Hudson Valley countryside.<br><br>Pick up a free outlet map at the welcome centre and plan your stores in advance — it's a large site with several neighbourhoods.</div>
+              <div class="tl-cost">Getting there: ~$25/person rt · Savings: entirely up to you</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🍔</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch at the Outlets</div>
+              <div class="tl-title">Woodbury Common Food Court</div>
+              <div class="tl-desc">The outlets have a decent food court and several casual sit-down restaurants. Grab lunch here between shops — saves time and keeps the momentum going.</div>
+              <div class="tl-cost">~$15–20 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon transport">🚌</div>
+            <div class="tl-content">
+              <div class="tl-label">~3:30pm — Return Bus</div>
+              <div class="tl-title">Bus back to Port Authority</div>
+              <div class="tl-desc">Catch the ~3:30–4pm bus back to Manhattan. Arrive Port Authority ~5–5:30pm. Head back to the Freehand, drop your bags, and freshen up for the evening.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon booked">🎂</div>
+            <div class="tl-content">
+              <div class="tl-label">Evening — Pre-booked</div>
+              <div class="tl-title">Two Strangers Carry a Cake</div>
+              <div class="tl-desc">An intimate immersive dining and theatrical experience — part show, part dinner, part something entirely its own. One of NYC's most talked-about new experiences.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 8: July 24 -->
+    <div class="day-card" id="day-24">
+      <div class="day-header" onclick="toggleDay('day-24')">
+        <div class="day-num">
+          <span class="weekday">Fri</span>
+          <span class="date-num">24</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">MLB Game &amp; Last Night</div>
+          <div class="day-tags">
+            <span class="tag explore">⚾ Mets vs Dodgers</span>
+            <span class="tag explore">🍺 McSorley's</span>
+            <span class="tag explore">Flatiron</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">☕</div>
+            <div class="tl-content">
+              <div class="tl-label">Breakfast</div>
+              <div class="tl-title">Balthazar — SoHo</div>
+              <div class="tl-desc">A grand Parisian brasserie that has been a New York landmark since 1997. Perfect croissants, steak and eggs, and excellent coffee. A brilliant last full morning.</div>
+              <div class="tl-cost">~$25–35 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🏙</div>
+            <div class="tl-content">
+              <div class="tl-label">Morning</div>
+              <div class="tl-title">Flatiron Building &amp; Madison Square Park</div>
+              <div class="tl-desc">A short walk from the Freehand. The Flatiron Building is one of NYC's most iconic structures. Madison Square Park has the original Shake Shack and is a lovely spot to sit in the sun.</div>
+              <div class="tl-cost">Free</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🛍</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">SoHo Shopping &amp; Last Wander</div>
+              <div class="tl-desc">SoHo is NYC's best shopping neighbourhood — cast-iron architecture, independent boutiques, and flagship stores all mixed together. Walk from Houston St down to Canal St. Last chance for souvenirs.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-l">🍕</div>
+            <div class="tl-content">
+              <div class="tl-label">Lunch</div>
+              <div class="tl-title">Eataly Flatiron</div>
+              <div class="tl-desc">Right at the Flatiron Building (200 5th Ave) — an enormous Italian food hall spanning an entire city block. Browse the fishmonger, the cheese counter, the pasta bar, and the bakery, then sit down at one of several restaurants inside. Pizza, pasta, charcuterie boards, or a quick espresso and pastry at the counter. One of NYC's best food experiences.</div>
+              <div class="tl-cost">~$20–30/person depending on what you order</div>
+              <div class="tl-tip">💡 Grab something from the deli counter to eat at Madison Square Park next door for a cheaper option</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🍺</div>
+            <div class="tl-content">
+              <div class="tl-label">Afternoon</div>
+              <div class="tl-title">McSorley's Old Ale House — East Village</div>
+              <div class="tl-desc">New York's oldest Irish bar, open since 1854. Only two beers on the menu — light or dark — served in pairs. Sawdust on the floor, wishbones on the ceiling left by soldiers heading to WWI who never came back. Absolutely authentic. A proper pub afternoon before the baseball.</div>
+              <div class="tl-cost">~$10 for two rounds · 15 East 7th St, East Village</div>
+              <div class="tl-tip">💡 Cash only · Gets busy in the evening — go in the afternoon for a more relaxed experience</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">⚾</div>
+            <div class="tl-content">
+              <div class="tl-label">Evening — Confirmed ✓</div>
+              <div class="tl-title">New York Mets vs LA Dodgers — Citi Field</div>
+              <div class="tl-desc">
+                The Mets have a confirmed home series against the <strong>LA Dodgers</strong> from July 24–26 — one of the biggest rivalries in baseball right now, and a World Series rematch atmosphere guaranteed. Citi Field (Flushing, Queens) is a great stadium with excellent sightlines from every seat.<br><br>
+                From Williamsburg: take the L train to 8th Ave, then the 7 train to Mets–Willets Point. About 50 mins. Games typically start 7:10pm ET and last ~3 hours.<br><br>
+                <em>Note: The Yankees are away in Philadelphia on July 24th.</em>
+              </div>
+              <div class="tl-cost">Tickets: $30–90/person · Hot dogs &amp; beer at the stadium: ~$40 for two</div>
+              <div class="tl-tip">💡 Buy tickets now at mlb.com — Dodgers series will sell fast</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon food-d">🍺</div>
+            <div class="tl-content">
+              <div class="tl-label">After the Game</div>
+              <div class="tl-title">Nightcap — Last Night in NYC</div>
+              <div class="tl-desc">Head back to the Freehand rooftop bar for a final drink over the Manhattan skyline. Or explore the bars of Gramercy and Murray Hill for one last New York night.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 9: July 25 -->
+    <div class="day-card" id="day-25">
+      <div class="day-header" onclick="toggleDay('day-25')">
+        <div class="day-num">
+          <span class="weekday">Sat</span>
+          <span class="date-num">25</span>
+          <span class="month">Jul</span>
+        </div>
+        <div class="day-summary">
+          <div class="day-title">Departure</div>
+          <div class="day-tags">
+            <span class="tag">✈ JFK</span>
+          </div>
+        </div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-icon food-b">🥯</div>
+            <div class="tl-content">
+              <div class="tl-label">Last Breakfast</div>
+              <div class="tl-title">Bagel &amp; Coffee — Local Deli</div>
+              <div class="tl-desc">Pick up a final NYC bagel from a corner deli near the Freehand. Keep it simple, keep it New York.</div>
+              <div class="tl-cost">~$5–8 each</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon hotel">🏨</div>
+            <div class="tl-content">
+              <div class="tl-label">Check-out</div>
+              <div class="tl-title">Freehand New York</div>
+              <div class="tl-desc">Standard check-out is 11am. Your 7:20pm departure gives you a good chunk of the afternoon — ask about late check-out or luggage storage so you can keep exploring.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌳</div>
+            <div class="tl-content">
+              <div class="tl-label">Morning / Early Afternoon</div>
+              <div class="tl-title">One Last Wander — Gramercy &amp; Union Square</div>
+              <div class="tl-desc">A final stroll around Gramercy and down to Union Square Greenmarket (runs Saturdays). A relaxed goodbye to New York before heading to the airport.</div>
+              <div class="tl-cost">Free</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon transport">🚇</div>
+            <div class="tl-content">
+              <div class="tl-label">Depart by 4:15pm → Flight 7:20pm</div>
+              <div class="tl-title">Head to JFK</div>
+              <div class="tl-desc"><strong>Subway:</strong> Take the E or A from 14th St to Jamaica Station, then AirTrain to your terminal (~60–75 mins, ~$9/person). <strong>Uber/Lyft:</strong> ~$55–70, around 45 mins. Leave the hotel no later than 4:15pm to clear security comfortably.</div>
+              <div class="tl-tip">💡 Saturday afternoon traffic can be slow — if taking a cab, leave by 4pm to be safe</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /days -->
+
+  <!-- ── Budget ── -->
+  <div style="margin-top:48px">
+    <div class="section-title">Budget Overview</div>
+    <div class="budget-grid">
+      <div class="budget-card">
+        <div class="amount">£2,000</div>
+        <div class="label">Spending money (food, travel &amp; activities)</div>
+      </div>
+      <div class="budget-card">
+        <div class="amount">~£222</div>
+        <div class="label">Per day for two (9 days)</div>
+      </div>
+      <div class="budget-card">
+        <div class="amount">~$9</div>
+        <div class="label">Subway per person (AirTrain + ride)</div>
+      </div>
+      <div class="budget-card">
+        <div class="amount">$2.90</div>
+        <div class="label">Per subway ride (OMNY tap)</div>
+      </div>
+    </div>
+    <div class="budget-note">
+      <strong>This budget covers food, local transport, and paid activities only</strong> — flights, hotel, Great Gatsby, QC Spa, and Two Strangers Carry a Cake are already covered separately. At ~£222/day for two that's very comfortable: NYC subway is cheap ($2.90/ride, tap with contactless via OMNY), and balancing street food lunches (Halal Guys, pizza slices, bagels ~$10–15 each) against nice dinners keeps you well within budget. The MLB game and Liberty tickets are the main optional spends (~$60–180 for two depending on seats). Grocery stores like Trader Joe's in Williamsburg are great for snacks and picnic supplies.
+    </div>
+  </div>
+
+  <!-- ── Tips ── -->
+  <div style="margin-top:48px">
+    <div class="section-title">Good to Know</div>
+    <div class="tips-grid">
+      <div class="tip-item">
+        <div class="tip-icon">🚇</div>
+        <div class="tip-text"><strong>Subway</strong> — Use OMNY (contactless card or phone). $2.90/ride. Runs 24/7. Get a map at any station.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">💵</div>
+        <div class="tip-text"><strong>Tipping</strong> — 20% at restaurants is standard. Pre-tip is built into card machines — select a percentage or enter custom.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🌡</div>
+        <div class="tip-text"><strong>Weather</strong> — July in NYC is hot and humid (28–34°C). Light clothing, sunscreen, and a water bottle are essential.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">📱</div>
+        <div class="tip-text"><strong>Apps</strong> — Google Maps for navigation, Resy/OpenTable for restaurant bookings, MLB app for game tickets.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🎫</div>
+        <div class="tip-text"><strong>Queues</strong> — Popular spots like Katz's, Prune, and Joe's Pizza have queues. Go early or arrive off-peak.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">⚾</div>
+        <div class="tip-text"><strong>Mets vs Dodgers, July 24</strong> — Book now at mlb.com. This is a big series — buy sooner rather than later. Upper deck seats are great value (~$30).</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🚣</div>
+        <div class="tip-text"><strong>Active option — Free kayaking</strong> — Hudson River Park runs free community kayaking from Pier 84 (W 44th St) on weekends. No booking needed, just show up. Paddling with the Manhattan skyline behind you is genuinely special.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🚴</div>
+        <div class="tip-text"><strong>Active option — Citi Bike</strong> — Rent bikes and ride the Hudson River Greenway, 11 miles of car-free cycling along Manhattan's west side. Day pass ~$15 each via the Citi Bike app.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Packing list ── -->
+  <div style="margin-top:48px">
+    <div class="section-title">Packing List</div>
+    <p style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6">Clothes and accessories for 8 nights in New York in July — hot and humid (28–34°C), lots of walking, evening dinners, one 1920s-themed night, a beach day, and a spa.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+      <div class="hotel-card">
+        <div class="pack-group-label her">Her</div>
+        <div class="pack-section">Clothes</div>
+        <ul class="pack-list">
+          <li>2–3 summer dresses — daywear and smart-casual evenings</li>
+          <li>1 evening dress for dinners / Two Strangers</li>
+          <li><span class="pack-highlight">Great Gatsby outfit</span> — 1920s inspired: fringe, sequins, or a shift dress</li>
+          <li>2–3 casual tops</li>
+          <li>1–2 pairs of shorts</li>
+          <li>1 pair of smart trousers or dark jeans</li>
+          <li>Swimsuit or bikini (QC Spa + Coney Island beach)</li>
+          <li>Light cardigan or wrap (restaurant AC can be fierce)</li>
+        </ul>
+        <div class="pack-section">Footwear</div>
+        <ul class="pack-list">
+          <li><span class="pack-highlight">Comfortable walking trainers</span> — most important item, NYC involves miles of walking</li>
+          <li>Sandals or flip-flops (spa + beach)</li>
+          <li>Heels or smart flats for evenings</li>
+        </ul>
+        <div class="pack-section">Accessories</div>
+        <ul class="pack-list">
+          <li>Sunglasses</li>
+          <li>Sun hat or wide-brim hat</li>
+          <li><span class="pack-highlight">Crossbody bag</span> — hands-free and secure on the subway</li>
+          <li>Evening clutch</li>
+          <li><span class="pack-highlight">1920s extras for Gatsby</span>: long pearl necklace, feather headband</li>
+          <li>Compact fold-up umbrella (NYC gets sudden summer downpours)</li>
+        </ul>
+      </div>
+
+      <div class="hotel-card">
+        <div class="pack-group-label him">Him</div>
+        <div class="pack-section">Clothes</div>
+        <ul class="pack-list">
+          <li>3–4 casual t-shirts</li>
+          <li>2–3 smart-casual shirts (collar) for evenings out</li>
+          <li>2–3 pairs of shorts</li>
+          <li>1–2 pairs of chinos or smart trousers</li>
+          <li>Lightweight linen jacket or blazer (evenings + AC)</li>
+          <li>Swim shorts (QC Spa + Coney Island beach)</li>
+        </ul>
+        <div class="pack-section">Running</div>
+        <ul class="pack-list">
+          <li><span class="pack-highlight">Running shoes</span></li>
+          <li>Running shorts ×2</li>
+          <li>Moisture-wicking running t-shirts ×2–3</li>
+          <li>Running socks ×2–3 pairs</li>
+        </ul>
+        <div class="pack-section">Footwear</div>
+        <ul class="pack-list">
+          <li><span class="pack-highlight">Comfortable trainers / sneakers</span> — essential, don't skimp on this</li>
+          <li>Smart shoes or loafers for evenings</li>
+          <li>Flip-flops (spa + beach)</li>
+        </ul>
+        <div class="pack-section">Accessories</div>
+        <ul class="pack-list">
+          <li>Sunglasses</li>
+          <li>Baseball cap or bucket hat</li>
+          <li>Small backpack or tote for daily carry</li>
+          <li>Compact umbrella or rain poncho</li>
+          <li><span class="pack-highlight">1920s touch for Gatsby</span>: waistcoat + flat cap or trilby is the easy win</li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="hotel-card">
+      <div class="pack-group-label both">Both</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px">
+        <ul class="pack-list">
+          <li>Reusable water bottle — essential in the July heat</li>
+          <li>Portable power bank — you'll drain your phone on maps and photos</li>
+          <li>Spa sliders / flip-flops for QC (provided robes, but bring your own footwear)</li>
+        </ul>
+        <ul class="pack-list">
+          <li>Light rain layer — sudden storms are common in NYC in July</li>
+          <li>Small tote bag for outlet shopping day (Woodbury Common)</li>
+          <li>A smart-casual outfit each for Two Strangers Carry a Cake</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  New York City · July 2026 · Made with love ❤
+</footer>
+
+<script>
+  // ── Map setup ────────────────────────────────────────────
+  const map = L.map('map', { zoomControl: true }).setView([40.710, -73.940], 11);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+
+  function makeIcon(color, emoji) {
+    return L.divIcon({
+      html: `<div style="
+        background:${color};
+        border:2px solid white;
+        border-radius:50%;
+        width:32px;height:32px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:15px;
+        box-shadow:0 2px 6px rgba(0,0,0,0.25);
+      ">${emoji}</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16],
+      className: ''
+    });
+  }
+
+  const hotelIcon    = makeIcon('#2d6a9f', '🏨');
+  const bookedIcon   = makeIcon('#6a2d9f', '🎭');
+  const exploreIcon  = makeIcon('#2d8c4e', '📍');
+  const foodIcon     = makeIcon('#e05c2a', '🍽');
+  const transportIcon = makeIcon('#888', '✈');
+
+  function mapsLink(lat, lng) {
+    return `<a href='https://maps.google.com/?q=${lat},${lng}' target='_blank' style='display:inline-block;margin-top:7px;font-size:12px;color:#2d6a9f;font-family:Arial,sans-serif;text-decoration:none'>📍 Open in Google Maps</a>`;
+  }
+  function when(txt) {
+    return `<span style='font-family:Arial,sans-serif;font-size:11px;color:#888'>${txt}</span>`;
+  }
+
+  const locations = [
+    // Hotels
+    { lat: 40.7180, lng: -73.9575, icon: hotelIcon, name: 'Pointe Plaza Hotel',
+      desc: `${when('Fri 17 – Mon 20 July')}<br>2 Franklin Ave, Williamsburg, Brooklyn${mapsLink(40.7180,-73.9575)}` },
+    { lat: 40.7396, lng: -73.9835, icon: hotelIcon, name: 'Freehand New York',
+      desc: `${when('Mon 20 – Sat 25 July')}<br>23 Lexington Ave, Gramercy${mapsLink(40.7396,-73.9835)}` },
+
+    // Transport
+    { lat: 40.6413, lng: -73.7781, icon: transportIcon, name: 'JFK Airport',
+      desc: `${when('Arrive Fri 17 Jul 12:29 · Depart Sat 25 Jul 19:20')}${mapsLink(40.6413,-73.7781)}` },
+    { lat: 40.7566, lng: -74.0026, icon: transportIcon, name: 'Port Authority Bus Terminal',
+      desc: `${when('Thu 23 July · 9:00am')}<br>Coach USA bus to Woodbury Common Outlets (~90 min)${mapsLink(40.7566,-74.0026)}` },
+
+    // Booked
+    { lat: 40.6895, lng: -74.0165, icon: bookedIcon, name: 'QC New York Spa',
+      desc: `${when('Wed 22 July · 11am–4pm (lunch included)')}<br>Governor's Island${mapsLink(40.6895,-74.0165)}` },
+    { lat: 40.7501, lng: -73.9913, icon: bookedIcon, name: 'The Great Gatsby',
+      desc: `${when('Mon 20 July · Evening')}<br>Venue confirmed at booking${mapsLink(40.7501,-73.9913)}` },
+    { lat: 40.7282, lng: -73.9862, icon: bookedIcon, name: 'Two Strangers Carry a Cake',
+      desc: `${when('Thu 23 July · Evening')}<br>Venue confirmed at booking${mapsLink(40.7282,-73.9862)}` },
+
+    // Attractions
+    { lat: 40.7115, lng: -74.0131, icon: exploreIcon, name: '9/11 Memorial & Museum',
+      desc: `${when('Sun 19 July · Morning (first slot)')}<br>Book at 911memorial.org${mapsLink(40.7115,-74.0131)}` },
+    { lat: 40.7484, lng: -73.9856, icon: exploreIcon, name: 'Empire State Building',
+      desc: `${when('Sat 18 July · Afternoon')}<br>Book timed entry at esbnyc.com${mapsLink(40.7484,-73.9856)}` },
+    { lat: 40.6892, lng: -74.0445, icon: exploreIcon, name: 'Statue of Liberty',
+      desc: `${when('Wed 22 July · 8:30am first ferry')}<br>Book at statuecruises.com${mapsLink(40.6892,-74.0445)}` },
+    { lat: 40.7829, lng: -73.9654, icon: exploreIcon, name: 'Central Park',
+      desc: `${when('Sat 18 July · Morning')}<br>Rowboats, Bethesda Fountain, Strawberry Fields${mapsLink(40.7829,-73.9654)}` },
+    { lat: 40.5749, lng: -73.9857, icon: exploreIcon, name: 'Coney Island',
+      desc: `${when('Tue 21 July · All day')}<br>Luna Park · Cyclone · Nathan's Famous · Beach${mapsLink(40.5749,-73.9857)}` },
+    { lat: 40.7571, lng: -73.8458, icon: exploreIcon, name: 'Citi Field — Mets vs Dodgers ✓',
+      desc: `${when('Fri 24 July · 7:10pm')}<br>Confirmed home game · Book at mlb.com${mapsLink(40.7571,-73.8458)}` },
+    { lat: 40.7061, lng: -73.9969, icon: exploreIcon, name: 'Brooklyn Bridge',
+      desc: `${when('Sun 19 July · Afternoon')}<br>Walk from Manhattan → DUMBO (free)${mapsLink(40.7061,-73.9969)}` },
+    { lat: 40.7033, lng: -73.9881, icon: exploreIcon, name: 'DUMBO',
+      desc: `${when('Sun 19 July · Afternoon')}<br>Skyline views · Jane's Carousel · Grimaldi's${mapsLink(40.7033,-73.9881)}` },
+    { lat: 40.7480, lng: -74.0048, icon: exploreIcon, name: 'The High Line',
+      desc: `${when('Any day — free, always open')}<br>Elevated park on a former railway line${mapsLink(40.7480,-74.0048)}` },
+    { lat: 40.7398, lng: -73.9903, icon: exploreIcon, name: 'Flatiron Building',
+      desc: `${when('Fri 24 July · Morning')}<br>One of NYC's most iconic landmarks${mapsLink(40.7398,-73.9903)}` },
+    { lat: 40.7092, lng: -73.9600, icon: exploreIcon, name: 'Domino Park',
+      desc: `${when('Fri 17 July · Afternoon')}<br>Williamsburg waterfront · Manhattan skyline views${mapsLink(40.7092,-73.9600)}` },
+
+    // Food
+    { lat: 40.7135, lng: -73.9612, icon: foodIcon, name: 'Peter Luger Steak House',
+      desc: `${when('Fri 17 July · Dinner')}<br>178 Broadway, Williamsburg · Cash only · Book ahead${mapsLink(40.7135,-73.9612)}` },
+    { lat: 40.7178, lng: -73.9502, icon: foodIcon, name: 'Lilia',
+      desc: `${when('Fri 17 July · Dinner (alternative)')}<br>567 Union Ave, Williamsburg${mapsLink(40.7178,-73.9502)}` },
+    { lat: 40.7158, lng: -73.9970, icon: foodIcon, name: 'Chinatown',
+      desc: `${when('Sun 19 July · Lunch')}<br>Nom Wah Tea Parlor or Joe's Shanghai${mapsLink(40.7158,-73.9970)}` },
+    { lat: 40.7427, lng: -73.9893, icon: foodIcon, name: 'Eataly Flatiron',
+      desc: `${when('Fri 24 July · Lunch')}<br>200 5th Ave · Italian food hall${mapsLink(40.7427,-73.9893)}` },
+    { lat: 40.7289, lng: -73.9896, icon: foodIcon, name: "McSorley's Old Ale House",
+      desc: `${when('Fri 24 July · Afternoon')}<br>15 E 7th St · NYC's oldest Irish bar · Cash only${mapsLink(40.7289,-73.9896)}` },
+    { lat: 40.7272, lng: -73.9839, icon: foodIcon, name: 'Nevada Smiths',
+      desc: `${when('Sat 18 July · Evening (WC 3rd Place Playoff)')}<br>100 3rd Ave, East Village${mapsLink(40.7272,-73.9839)}` },
+    { lat: 40.7222, lng: -73.9874, icon: foodIcon, name: "Katz's Delicatessen",
+      desc: `${when('Any day — Lower East Side')}<br>Best pastrami in New York${mapsLink(40.7222,-73.9874)}` },
+    { lat: 40.7301, lng: -74.0020, icon: foodIcon, name: "Joe's Pizza",
+      desc: `${when('Any day — West Village')}<br>7 Carmine St · The classic NYC slice${mapsLink(40.7301,-74.0020)}` },
+    { lat: 40.7408, lng: -73.9883, icon: foodIcon, name: 'Shake Shack (original)',
+      desc: `${when('Any day — Madison Square Park')}<br>The original location${mapsLink(40.7408,-73.9883)}` },
+  ];
+
+  locations.forEach(loc => {
+    L.marker([loc.lat, loc.lng], { icon: loc.icon })
+      .addTo(map)
+      .bindPopup(`<strong style='font-size:14px'>${loc.name}</strong><br>${loc.desc}`, { maxWidth: 260 });
+  });
+
+  // ── Toggle day cards ─────────────────────────────────────
+  function toggleDay(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+  document.querySelectorAll('.day-card:not(#day-17)').forEach(c => c.classList.remove('open'));
+
+  // ── Navigation helpers ────────────────────────────────────
+  function jumpToDay(id) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.classList.add('open');
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+  function jumpToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Booking checklist ────────────────────────────────────
+  function toggleCheck(id) {
+    const label = document.getElementById(id);
+    const cb = document.getElementById('cb-' + id);
+    if (!label || !cb) return;
+    const nowChecked = !cb.checked;
+    cb.checked = nowChecked;
+    label.classList.toggle('done', nowChecked);
+    localStorage.setItem('nyc_' + id, nowChecked);
+    updateCheckCount();
+  }
+
+  function updateCheckCount() {
+    const total = document.querySelectorAll('#checklist-container .checklist-item').length;
+    const done  = document.querySelectorAll('#checklist-container .checklist-item.done').length;
+    const el = document.getElementById('checklist-count');
+    if (el) el.textContent = done + ' of ' + total + ' confirmed';
+  }
+
+  // Restore saved states from localStorage
+  document.querySelectorAll('#checklist-container .checklist-item').forEach(label => {
+    const saved = localStorage.getItem('nyc_' + label.id);
+    if (saved === 'true') {
+      label.classList.add('done');
+      const cb = document.getElementById('cb-' + label.id);
+      if (cb) cb.checked = true;
+    } else if (saved === 'false') {
+      label.classList.remove('done');
+      const cb = document.getElementById('cb-' + label.id);
+      if (cb) cb.checked = false;
+    }
+  });
+  updateCheckCount();
+
+  // ── Live weather (Open-Meteo, no API key required) ───────
+  const WMO = {
+    0:['☀️','Clear'],1:['🌤️','Mainly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],
+    45:['🌫️','Fog'],48:['🌫️','Freezing fog'],
+    51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌧️','Heavy drizzle'],
+    61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
+    71:['🌨️','Light snow'],73:['🌨️','Snow'],75:['❄️','Heavy snow'],77:['🌨️','Snow grains'],
+    80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Violent showers'],
+    85:['🌨️','Snow showers'],86:['❄️','Heavy snow showers'],
+    95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm + hail'],99:['⛈️','Thunderstorm + hail']
+  };
+  function wmo(code){ return WMO[code] || ['🌡️','Unknown']; }
+
+  async function loadWeather() {
+    try {
+      const r = await fetch(
+        'https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060' +
+        '&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m,precipitation' +
+        '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode' +
+        '&timezone=America%2FNew_York&forecast_days=7&temperature_unit=celsius&windspeed_unit=mph'
+      );
+      const d = await r.json();
+      const c = d.current, dy = d.daily;
+      const [icon, desc] = wmo(c.weathercode);
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+      const forecast = dy.time.map((t, i) => {
+        const label = i === 0 ? 'Today' : days[new Date(t+'T12:00:00').getDay()];
+        const [fi] = wmo(dy.weathercode[i]);
+        const rain = dy.precipitation_probability_max[i];
+        return `<div class="forecast-day">
+          <div class="fc-day">${label}</div>
+          <div class="fc-icon">${fi}</div>
+          <div class="fc-hi">${Math.round(dy.temperature_2m_max[i])}°</div>
+          <div class="fc-lo">${Math.round(dy.temperature_2m_min[i])}°</div>
+          ${rain >= 20 ? `<div class="fc-rain">💧${rain}%</div>` : '<div class="fc-rain" style="opacity:0">·</div>'}
+        </div>`;
+      }).join('');
+
+      document.getElementById('weather-content').innerHTML = `
+        <div class="weather-current">
+          <div style="text-align:center">
+            <div class="weather-icon-big">${icon}</div>
+            <div class="weather-temp-big">${Math.round(c.temperature_2m)}°C</div>
+            <div class="weather-desc">${desc}</div>
+          </div>
+          <div>
+            <div style="font-family:Arial,sans-serif;font-size:15px;color:#555;margin-bottom:16px">New York City · Right now</div>
+            <div class="weather-stats">
+              <div class="weather-stat">
+                <div class="stat-val">${Math.round(c.apparent_temperature)}°C</div>
+                <div class="stat-lbl">Feels like</div>
+              </div>
+              <div class="weather-stat">
+                <div class="stat-val">${c.relativehumidity_2m}%</div>
+                <div class="stat-lbl">Humidity</div>
+              </div>
+              <div class="weather-stat">
+                <div class="stat-val">${Math.round(c.windspeed_10m)} mph</div>
+                <div class="stat-lbl">Wind</div>
+              </div>
+              <div class="weather-stat">
+                <div class="stat-val">${Math.round(dy.temperature_2m_max[0])}° / ${Math.round(dy.temperature_2m_min[0])}°C</div>
+                <div class="stat-lbl">Today high / low</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="forecast-strip">${forecast}</div>`;
+
+      const now = new Date();
+      document.getElementById('weather-meta').textContent =
+        `Updated ${now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} · Data: Open-Meteo · °C`;
+    } catch(e) {
+      document.getElementById('weather-content').innerHTML =
+        '<div class="weather-error">Unable to load weather — check your connection and refresh.</div>';
+    }
+  }
+  loadWeather();
+</script>
+</body>
+</html>
