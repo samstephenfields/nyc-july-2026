@@ -79,6 +79,42 @@
     }
     .pill:active { transform: translateY(0); }
 
+    /* ── Countdown ───────────────────────────────────────── */
+    .hero-countdown {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 28px;
+    }
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 52px;
+    }
+    .countdown-num {
+      font-size: 36px;
+      font-weight: 300;
+      color: white;
+      line-height: 1;
+      font-family: 'Georgia', serif;
+    }
+    .countdown-lbl {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #90c4e8;
+      margin-top: 5px;
+    }
+    .countdown-sep {
+      font-size: 28px;
+      color: rgba(255,255,255,0.25);
+      line-height: 1.2;
+      font-weight: 300;
+    }
+
     /* ── Map ──────────────────────────────────────────────── */
     .map-section {
       padding: 0;
@@ -285,6 +321,12 @@
       color: #888;
       font-style: italic;
       margin-top: 3px;
+    }
+    .tl-photo {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #b07d2a;
+      margin-top: 4px;
     }
 
     /* ── Budget section ───────────────────────────────────── */
@@ -726,6 +768,15 @@
     <span class="pill" onclick="jumpToDay('day-24')">⚾ Mets vs Dodgers</span>
     <span class="pill" onclick="jumpToDay('day-21')">🏖 Coney Island</span>
   </div>
+  <div class="hero-countdown" id="hero-countdown">
+    <div class="countdown-unit"><span class="countdown-num" id="cd-days">--</span><span class="countdown-lbl">Days</span></div>
+    <div class="countdown-sep">·</div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-hours">--</span><span class="countdown-lbl">Hours</span></div>
+    <div class="countdown-sep">·</div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-mins">--</span><span class="countdown-lbl">Mins</span></div>
+    <div class="countdown-sep">·</div>
+    <div class="countdown-unit"><span class="countdown-num" id="cd-secs">--</span><span class="countdown-lbl">Secs</span></div>
+  </div>
 </div>
 
 <!-- ════════════════════ MAP ════════════════════ -->
@@ -773,7 +824,7 @@
   <!-- ── Booking checklist ── -->
   <div id="book-in-advance" style="margin-bottom:48px">
     <div class="section-title">Book in Advance</div>
-    <p class="checklist-intro">Tick items off as you confirm them. Items marked <span class="checklist-urgent">urgent</span> sell out well ahead — book these first.</p>
+    <p class="checklist-intro">Tick items off as you confirm them. Items marked sell out well ahead — book these first.</p>
     <button id="share-btn" onclick="copyShareLink()" style="margin-bottom:18px;padding:8px 18px;font-family:Arial,sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;background:#1b3a5c;color:white;border:none;border-radius:999px;cursor:pointer">🔗 Copy shareable link</button>
     <div id="checklist-container">
       <div class="checklist-group" style="max-width:600px">
@@ -811,7 +862,7 @@
 
         <label class="checklist-item" id="ci-liberty" onclick="toggleCheck('ci-liberty')">
           <input type="checkbox" id="cb-ci-liberty" onclick="event.stopPropagation()">
-          <div><div class="checklist-name">Statue of Liberty ferry <span class="checklist-urgent">urgent</span></div><div class="checklist-detail">22 July · statuecruises.com · Liberty Island — sells out months ahead</div></div>
+          <div><div class="checklist-name">Statue of Liberty ferry</div><div class="checklist-detail">22 July · statuecruises.com · Liberty Island — sells out months ahead</div></div>
         </label>
 
         <label class="checklist-item done" id="ci-spa" onclick="toggleCheck('ci-spa')">
@@ -888,6 +939,7 @@
               <div class="tl-desc">July 17 is a Friday — Smorgasburg runs Fridays (and Saturdays) at the East River waterfront. NYC's legendary open-air food market with dozens of vendors. Perfect first taste of New York.</div>
               <div class="tl-cost">~$15–20/person</div>
               <div class="tl-tip">💡 Also open Saturdays, so you can come back on the 18th if you want more</div>
+              <div class="tl-photo">📸 Best shot: stand at the waterfront edge facing the East River — the Manhattan skyline frames perfectly behind the market stalls. Late afternoon light is golden here.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -897,6 +949,7 @@
               <div class="tl-title">Domino Park &amp; East River Waterfront</div>
               <div class="tl-desc">A beautiful waterfront park a short walk from the hotel with sweeping views of the Manhattan skyline across the river. Walk north to the East River State Park for more open waterfront.</div>
               <div class="tl-cost">Free</div>
+              <div class="tl-photo">📸 Best shot: the preserved sugar refinery columns at the park entrance with the Manhattan skyline behind. Walk to the very end of the pier for an unobstructed panorama of the Empire State and midtown.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -959,6 +1012,7 @@
               <div class="tl-desc">Enter at 59th St (Columbus Circle). Stroll past Sheep Meadow, Bethesda Fountain &amp; Terrace, The Lake, Strawberry Fields (John Lennon memorial), and Belvedere Castle. Allow 2–3 hours to wander.</div>
               <div class="tl-cost">Free</div>
               <div class="tl-tip">💡 Rent a rowboat on The Lake — $20 for 1 hour, very romantic</div>
+              <div class="tl-photo">📸 Best shot: Bethesda Terrace from the steps above, framing the fountain and lake together. For something quieter, the Bow Bridge reflected in The Lake is one of the most photographed spots in New York.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -978,6 +1032,7 @@
               <div class="tl-desc">Walk or subway down from Central Park to 34th St &amp; 5th Ave. The main observation deck is on the 86th floor with open-air 360° views — one of the most iconic vantage points in the world. Book timed-entry tickets online in advance to skip the queue. The top-floor (102nd) deck costs more but the 86th is the classic experience.</div>
               <div class="tl-cost">86th floor: ~$44/person · 102nd floor add-on: ~$20 extra</div>
               <div class="tl-tip">💡 Book timed-entry at esbnyc.com — walk-up queues can be 2+ hours</div>
+              <div class="tl-photo">📸 Best shot: from the deck, frame Central Park as a green rectangle stretching north between the buildings — uniquely recognisable. Also look south-west for the One World Trade tower. For a photo of the building itself, 34th St looking west gives the classic straight-on view.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1036,6 +1091,7 @@
               <div class="tl-desc">One of the most moving places in New York. The twin reflecting pools sit in the exact footprints of the Twin Towers, surrounded by the names of nearly 3,000 victims. The underground museum tells the full story of the day. Allow 2–3 hours. Book timed-entry tickets in advance at 911memorial.org — it can sell out.</div>
               <div class="tl-cost">Memorial: free · Museum: ~$30/person</div>
               <div class="tl-tip">💡 Book the first entry slot of the day — quieter, and you'll be finished by late morning</div>
+              <div class="tl-photo">📸 Best shot: kneel low at the edge of one of the reflecting pools — the water cascading into the void with names engraved around the rim makes for a powerful, respectful image. The Survivor Tree (a pear tree that survived the collapse) is also worth photographing.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1054,6 +1110,7 @@
               <div class="tl-title">Brooklyn Bridge Walk &amp; DUMBO</div>
               <div class="tl-desc">Walk south from Chinatown to the Brooklyn Bridge entrance (10 mins) and cross on foot — about 45 mins. Explore DUMBO on the Brooklyn side: great views of the Manhattan skyline, Jane's Carousel, and independent boutiques.</div>
               <div class="tl-cost">Free</div>
+              <div class="tl-photo">📸 Best shot: from DUMBO, walk to the corner of Washington St &amp; Water St — the Brooklyn Bridge frames perfectly between two red-brick warehouses with Manhattan behind. One of the most iconic street-level photos in New York. Also get a shot mid-bridge looking back at the Manhattan skyline.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1132,6 +1189,7 @@
               <div class="tl-title">The Great Gatsby: Immersive Experience</div>
               <div class="tl-desc">Step into the world of Fitzgerald's Jazz Age New York. An immersive cocktail experience with spectacular sets, characters, and live performance. Dress to impress — 1920s glamour optional but encouraged.</div>
               <div class="tl-tip">💡 Grab dinner before or after — the experience typically lasts 2–3 hours</div>
+              <div class="tl-photo">📸 Best shot: the set dressing and lighting inside are spectacular — use portrait mode to capture the Jazz Age atmosphere. Ask performers for a photo if the moment feels right. In your 1920s outfits, a posed shot outside the venue entrance makes a brilliant keepsake.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1161,6 +1219,7 @@
             <span class="tag explore">🎡 Coney Island</span>
             <span class="tag explore">🏖 Beach</span>
             <span class="tag explore">Luna Park</span>
+            <span class="tag explore">🌅 Sunset</span>
           </div>
         </div>
         <div class="day-chevron">▾</div>
@@ -1193,6 +1252,7 @@
               <div class="tl-desc">Walk the famous boardwalk, ride the Cyclone (a 1927 wooden roller coaster — genuinely thrilling), and explore Luna Park. The Wonder Wheel is iconic. The beach is a proper sandy beach — great for a swim in July.</div>
               <div class="tl-cost">Luna Park wristband: ~$40/person · Beach: free</div>
               <div class="tl-tip">💡 The Wonder Wheel gondola cars are a brilliant way to see the whole of Coney Island</div>
+              <div class="tl-photo">📸 Best shot: stand on the boardwalk facing the Wonder Wheel with the beach stretching behind you — classic Coney Island. From the top of the Wonder Wheel you'll get a sweeping view of the whole coastline and Atlantic Ocean. Grab a Nathan's hot dog and get a photo with the original 1916 sign.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1210,6 +1270,17 @@
               <div class="tl-label">Afternoon</div>
               <div class="tl-title">Beach &amp; Boardwalk Games</div>
               <div class="tl-desc">Spend the afternoon on the beach — it's a proper Atlantic beach, great for swimming in July (water is warm). Walk the boardwalk all the way to Brighton Beach ("Little Odessa") for a different flavour of Brooklyn.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-icon activity">🌅</div>
+            <div class="tl-content">
+              <div class="tl-label">~8:15pm — Sunset Spot</div>
+              <div class="tl-title">Pier 45 — Hudson River Park</div>
+              <div class="tl-desc">After the beach, head back into Manhattan and walk over to Pier 45 in Hudson River Park (Christopher St, West Village). NYC's best free sunset viewpoint: a wide open pier jutting into the Hudson, facing due west toward New Jersey. In July, sunset is around 8:20pm and the sky turns deep orange and pink over the water. Completely free, often breezy after a hot day, and far quieter than the High Line.</div>
+              <div class="tl-cost">Free · ~10 mins from Xi'an Famous Foods</div>
+              <div class="tl-tip">💡 Arrive 20 minutes before sunset and stay until the sky fades — the post-sunset "blue hour" is equally beautiful</div>
+              <div class="tl-photo">📸 Best shot: face west from the end of the pier and shoot directly into the setting sun over the Hudson. Silhouette shots of each other against the orange sky work brilliantly here. Bring a wide-angle or use panorama mode to capture the full sweep of the river.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1263,6 +1334,7 @@
               <strong>Ticket types:</strong> Reserve (grounds + exterior) or Monument (pedestal access). Crown tickets sell out months ahead — book at statuecruises.com.</div>
               <div class="tl-cost">Reserve: ~$24/person · Monument: ~$32 · Crown: ~$32 (very limited)</div>
               <div class="tl-tip">💡 Take the first ferry and you'll be one of very few people on the island — magical before the crowds arrive</div>
+              <div class="tl-photo">📸 Best shot: on the ferry approaching Liberty Island, position yourself at the bow for the statue growing larger against the Manhattan skyline behind. On the island, the low-angle shot looking straight up from the base makes her look monumental. Heading back, the skyline view from the water is exceptional.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1281,6 +1353,7 @@
               <div class="tl-title">QC New York — Spa &amp; Wellness</div>
               <div class="tl-desc">A world-class Italian-style spa on Governor's Island with thermal pools, saunas, hammam, and outdoor baths with spectacular views of the Statue of Liberty and Manhattan skyline. Completely unique in NYC. Lunch is included — no need to eat beforehand.</div>
               <div class="tl-tip">💡 The outdoor pools with the Manhattan skyline framed behind the Statue of Liberty are the highlight — make time for these early</div>
+              <div class="tl-photo">📸 Best shot: from the outdoor thermal pools, you can frame the Statue of Liberty and Manhattan skyline in the same shot — genuinely unique. The steam rising from the pools on cooler mornings adds a dreamy quality. Waterproof phone case recommended.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1351,6 +1424,7 @@
               <div class="tl-title">Woodbury Common Premium Outlets</div>
               <div class="tl-desc">The best outlet shopping in the USA — 250+ stores with genuine discounts of 25–65% off retail. Designer brands (Gucci, Prada, Burberry, Versace, Saint Laurent), American classics (Ralph Lauren, Calvin Klein, Tommy Hilfiger, J.Crew), and sportswear (Nike, Adidas, Under Armour) all under one roof in the Hudson Valley countryside.<br><br>Pick up a free outlet map at the welcome centre and plan your stores in advance — it's a large site with several neighbourhoods.</div>
               <div class="tl-cost">Getting there: ~$25/person rt · Savings: entirely up to you</div>
+              <div class="tl-photo">📸 Best shot: the outlet village has a charming open-air layout — the mock-village streets and flower displays make a surprisingly pretty backdrop. Great for a candid "bags and smiles" shot after a successful haul.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1418,6 +1492,7 @@
               <div class="tl-title">Flatiron Building &amp; Madison Square Park</div>
               <div class="tl-desc">A short walk from the Freehand. The Flatiron Building is one of NYC's most iconic structures. Madison Square Park has the original Shake Shack and is a lovely spot to sit in the sun.</div>
               <div class="tl-cost">Free</div>
+              <div class="tl-photo">📸 Best shot: stand at the triangular tip of the building on 23rd St where Broadway and 5th Ave converge — shoot straight up the narrow "prow" to exaggerate its wedge shape. From across Madison Square Park looking south-west also gives the classic full-building framing.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1459,6 +1534,7 @@
               <strong>Flushing food scene</strong> — one of the best eating destinations in the entire city. The Golden Shopping Mall basement (41-28 Main St) has hand-pulled noodles, lamb skewers, and dumplings for a few dollars each. A perfect pre-game meal.</div>
               <div class="tl-cost">Park: free · USTA grounds: free · Food in Flushing: ~$10–15/person</div>
               <div class="tl-tip">💡 The Unisphere is a 10-minute walk from the 7 train exit — Citi Field is visible the whole way</div>
+              <div class="tl-photo">📸 Best shot: stand at the reflecting pool directly in front of the Unisphere and shoot upward — the 12-storey steel globe fills the frame dramatically. The fountains running in summer add great foreground interest. Arthur Ashe Stadium looming in the background of a Unisphere shot is a uniquely Queens composition.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -1473,6 +1549,7 @@
               </div>
               <div class="tl-cost">Tickets: $30–90/person · Hot dogs &amp; beer at the stadium: ~$40 for two</div>
               <div class="tl-tip">💡 Buy tickets now at mlb.com — Dodgers series will sell fast</div>
+              <div class="tl-photo">📸 Best shot: arrive early and get a photo from your seats with the floodlit field stretching out below — baseball stadiums are photogenic in a way that's hard to replicate. The view from the upper concourse looking down the first-base line with Manhattan visible in the distance on a clear evening is stunning.</div>
             </div>
           </div>
           <div class="timeline-item">
@@ -2016,6 +2093,36 @@
     }
   }
   loadWeather();
+
+  // ── Countdown ─────────────────────────────────────────────
+  function updateCountdown() {
+    const target = new Date('2026-07-17T00:00:00-04:00');
+    const end    = new Date('2026-07-25T19:20:00-04:00');
+    const now    = new Date();
+    const diff   = target - now;
+    const el     = document.getElementById('hero-countdown');
+
+    if (now >= end) {
+      el.innerHTML = '<div style="font-family:Arial,sans-serif;font-size:16px;color:#90c4e8;letter-spacing:3px;text-transform:uppercase;margin-top:4px">Trip complete 🗽</div>';
+      return;
+    }
+    if (diff <= 0) {
+      el.innerHTML = '<div style="font-family:Arial,sans-serif;font-size:16px;color:#90c4e8;letter-spacing:3px;text-transform:uppercase;margin-top:4px">✈ The adventure is happening now!</div>';
+      return;
+    }
+
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000)  / 60000);
+    const secs  = Math.floor((diff % 60000)    / 1000);
+
+    document.getElementById('cd-days').textContent  = days;
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
+    document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
