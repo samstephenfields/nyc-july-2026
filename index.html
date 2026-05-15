@@ -663,6 +663,7 @@
   <div id="book-in-advance" style="margin-bottom:48px">
     <div class="section-title">Book in Advance</div>
     <p class="checklist-intro">Tick items off as you confirm them. Items marked <span class="checklist-urgent">urgent</span> sell out well ahead — book these first.</p>
+    <button id="share-btn" onclick="copyShareLink()" style="margin-bottom:18px;padding:8px 18px;font-family:Arial,sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;background:#1b3a5c;color:white;border:none;border-radius:999px;cursor:pointer">🔗 Copy shareable link</button>
     <div id="checklist-container">
       <div class="checklist-group" style="max-width:600px">
         <div class="checklist-group-header" style="background:#f5f0e8;color:#555" id="checklist-count">0 of 11 confirmed</div>
@@ -1719,6 +1720,7 @@
     label.classList.toggle('done', nowChecked);
     localStorage.setItem('nyc_' + id, nowChecked);
     updateCheckCount();
+    updateURL();
   }
 
   function updateCheckCount() {
@@ -1728,20 +1730,59 @@
     if (el) el.textContent = done + ' of ' + total + ' confirmed';
   }
 
-  // Restore saved states from localStorage
-  document.querySelectorAll('#checklist-container .checklist-item').forEach(label => {
-    const saved = localStorage.getItem('nyc_' + label.id);
-    if (saved === 'true') {
-      label.classList.add('done');
-      const cb = document.getElementById('cb-' + label.id);
-      if (cb) cb.checked = true;
-    } else if (saved === 'false') {
-      label.classList.remove('done');
-      const cb = document.getElementById('cb-' + label.id);
-      if (cb) cb.checked = false;
+  function updateURL() {
+    const booked = [...document.querySelectorAll('#checklist-container .checklist-item.done')]
+      .map(el => el.id);
+    const url = new URL(window.location);
+    if (booked.length) {
+      url.searchParams.set('booked', booked.join(','));
+    } else {
+      url.searchParams.delete('booked');
     }
-  });
-  updateCheckCount();
+    history.replaceState(null, '', url);
+  }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const btn = document.getElementById('share-btn');
+      btn.textContent = '✓ Link copied!';
+      btn.style.background = '#2d6b2d';
+      setTimeout(() => {
+        btn.textContent = '🔗 Copy shareable link';
+        btn.style.background = '#1b3a5c';
+      }, 2500);
+    });
+  }
+
+  // On load: URL params take priority over localStorage
+  (function initChecklist() {
+    const urlBooked = new URLSearchParams(window.location.search).get('booked');
+    if (urlBooked !== null) {
+      const bookedIds = new Set(urlBooked ? urlBooked.split(',') : []);
+      document.querySelectorAll('#checklist-container .checklist-item').forEach(label => {
+        const isBooked = bookedIds.has(label.id);
+        label.classList.toggle('done', isBooked);
+        const cb = document.getElementById('cb-' + label.id);
+        if (cb) cb.checked = isBooked;
+        localStorage.setItem('nyc_' + label.id, isBooked);
+      });
+    } else {
+      document.querySelectorAll('#checklist-container .checklist-item').forEach(label => {
+        const saved = localStorage.getItem('nyc_' + label.id);
+        if (saved === 'true') {
+          label.classList.add('done');
+          const cb = document.getElementById('cb-' + label.id);
+          if (cb) cb.checked = true;
+        } else if (saved === 'false') {
+          label.classList.remove('done');
+          const cb = document.getElementById('cb-' + label.id);
+          if (cb) cb.checked = false;
+        }
+      });
+      updateURL();
+    }
+    updateCheckCount();
+  })();
 
   // ── Live weather (Open-Meteo, no API key required) ───────
   const WMO = {
