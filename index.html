@@ -626,21 +626,37 @@
       margin-bottom: 40px;
     }
     #auth-form { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    #auth-input-wrap { position: relative; width: 280px; }
     #auth-input {
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.3);
       border-radius: 999px;
-      padding: 13px 28px;
+      padding: 13px 48px 13px 28px;
       font-size: 16px;
       color: white;
       text-align: center;
       outline: none;
-      width: 280px;
+      width: 100%;
       font-family: Arial, sans-serif;
       letter-spacing: 2px;
     }
     #auth-input::placeholder { color: rgba(255,255,255,0.35); letter-spacing: 0; }
     #auth-input:focus { border-color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.15); }
+    #auth-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 17px;
+      line-height: 1;
+      padding: 2px;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+    #auth-toggle:hover { opacity: 1; }
     #auth-submit {
       background: white;
       color: #1b3a5c;
@@ -687,7 +703,10 @@
     <div id="auth-title">New York City</div>
     <div id="auth-subtitle">17 – 25 July 2026</div>
     <form id="auth-form" onsubmit="checkPassword(event)">
-      <input type="password" id="auth-input" placeholder="Password" autocomplete="current-password">
+      <div id="auth-input-wrap">
+        <input type="password" id="auth-input" placeholder="Password" autocomplete="current-password">
+        <button type="button" id="auth-toggle" onclick="toggleAuthVis()" title="Show/hide password">👁</button>
+      </div>
       <button type="submit" id="auth-submit">Enter</button>
     </form>
     <div id="auth-error"></div>
@@ -1662,6 +1681,18 @@
   async function hashString(s) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function toggleAuthVis() {
+    const input = document.getElementById('auth-input');
+    const btn = document.getElementById('auth-toggle');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
   }
 
   async function checkPassword(e) {
