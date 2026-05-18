@@ -138,6 +138,19 @@
       width: 12px; height: 12px; border-radius: 50%;
       flex-shrink: 0;
     }
+    .legend-item {
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: background 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .legend-item:hover { background: rgba(255,255,255,0.08); }
+    .legend-item.active {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.35);
+    }
 
     /* ── Main content ─────────────────────────────────────── */
     .container {
@@ -784,12 +797,12 @@
 <div class="map-section">
   <div id="map"></div>
   <div class="map-legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#2d6a9f"></div> Hotels</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#6a2d9f"></div> Booked experiences</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#2d8c4e"></div> Explore / attractions</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#e05c2a"></div> Food highlights</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#888"></div> Transport</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div> Subway</div>
+    <div class="legend-item" data-category="hotel" onclick="filterMap('hotel')"><div class="legend-dot" style="background:#2d6a9f"></div> Hotels</div>
+    <div class="legend-item" data-category="booked" onclick="filterMap('booked')"><div class="legend-dot" style="background:#6a2d9f"></div> Booked experiences</div>
+    <div class="legend-item" data-category="explore" onclick="filterMap('explore')"><div class="legend-dot" style="background:#2d8c4e"></div> Explore / attractions</div>
+    <div class="legend-item" data-category="food" onclick="filterMap('food')"><div class="legend-dot" style="background:#e05c2a"></div> Food highlights</div>
+    <div class="legend-item" data-category="transport" onclick="filterMap('transport')"><div class="legend-dot" style="background:#888"></div> Transport</div>
+    <div class="legend-item" data-category="subway" onclick="filterMap('subway')"><div class="legend-dot" style="background:#c0392b"></div> Subway</div>
   </div>
 </div>
 
@@ -1841,85 +1854,126 @@
 
   const locations = [
     // Hotels
-    { lat: 40.7180, lng: -73.9575, icon: hotelIcon, name: 'Pointe Plaza Hotel',
+    { cat: 'hotel', lat: 40.7180, lng: -73.9575, icon: hotelIcon, name: 'Pointe Plaza Hotel',
       desc: `${when('Fri 17 – Mon 20 July')}<br>2 Franklin Ave, Williamsburg, Brooklyn${mapsLink(40.7180,-73.9575)}` },
-    { lat: 40.7396, lng: -73.9835, icon: hotelIcon, name: 'Freehand New York',
+    { cat: 'hotel', lat: 40.7396, lng: -73.9835, icon: hotelIcon, name: 'Freehand New York',
       desc: `${when('Mon 20 – Sat 25 July')}<br>23 Lexington Ave, Gramercy${mapsLink(40.7396,-73.9835)}` },
 
     // Transport
-    { lat: 40.6413, lng: -73.7781, icon: transportIcon, name: 'JFK Airport',
+    { cat: 'transport', lat: 40.6413, lng: -73.7781, icon: transportIcon, name: 'JFK Airport',
       desc: `${when('Arrive Fri 17 Jul 12:29 · British Airways from Heathrow')}<br>${when('Depart Sat 25 Jul 19:20 · British Airways to Heathrow')}${mapsLink(40.6413,-73.7781)}` },
-    { lat: 40.7566, lng: -74.0026, icon: transportIcon, name: 'Port Authority Bus Terminal',
+    { cat: 'transport', lat: 40.7566, lng: -74.0026, icon: transportIcon, name: 'Port Authority Bus Terminal',
       desc: `${when('Thu 23 July · 9:00am')}<br>Coach USA bus to Woodbury Common Outlets (~90 min)${mapsLink(40.7566,-74.0026)}` },
 
     // Subway
-    { lat: 40.7173, lng: -73.9573, icon: subwayIcon, name: 'Bedford Ave (L train)',
+    { cat: 'subway', lat: 40.7173, lng: -73.9573, icon: subwayIcon, name: 'Bedford Ave (L train)',
       desc: `${when('Nearest subway to Pointe Plaza Hotel')}<br>L train → 14th St-Union Sq in ~20 mins${mapsLink(40.7173,-73.9573)}` },
-    { lat: 40.7396, lng: -73.9853, icon: subwayIcon, name: '23rd St (6 train)',
+    { cat: 'subway', lat: 40.7396, lng: -73.9853, icon: subwayIcon, name: '23rd St (6 train)',
       desc: `${when('Nearest subway to Freehand New York')}<br>6 train → Midtown, Downtown, Grand Central${mapsLink(40.7396,-73.9853)}` },
 
     // Booked
-    { lat: 40.6895, lng: -74.0165, icon: bookedIcon, name: 'QC New York Spa',
+    { cat: 'booked', lat: 40.6895, lng: -74.0165, icon: bookedIcon, name: 'QC New York Spa',
       desc: `${when('Wed 22 July · 11am–4pm (lunch included)')}<br>Governor's Island${mapsLink(40.6895,-74.0165)}` },
-    { lat: 40.7501, lng: -73.9913, icon: bookedIcon, name: 'The Great Gatsby',
+    { cat: 'booked', lat: 40.7501, lng: -73.9913, icon: bookedIcon, name: 'The Great Gatsby',
       desc: `${when('Mon 20 July · Evening')}<br>Venue confirmed at booking${mapsLink(40.7501,-73.9913)}` },
-    { lat: 40.7282, lng: -73.9862, icon: bookedIcon, name: 'Two Strangers Carry a Cake',
+    { cat: 'booked', lat: 40.7282, lng: -73.9862, icon: bookedIcon, name: 'Two Strangers Carry a Cake',
       desc: `${when('Thu 23 July · Evening')}<br>Venue confirmed at booking${mapsLink(40.7282,-73.9862)}` },
 
     // Attractions
-    { lat: 40.7115, lng: -74.0131, icon: exploreIcon, name: '9/11 Memorial & Museum',
+    { cat: 'explore', lat: 40.7115, lng: -74.0131, icon: exploreIcon, name: '9/11 Memorial & Museum',
       desc: `${when('Sun 19 July · Morning (first slot)')}<br>Book at 911memorial.org${mapsLink(40.7115,-74.0131)}` },
-    { lat: 40.7484, lng: -73.9856, icon: exploreIcon, name: 'Empire State Building',
+    { cat: 'explore', lat: 40.7484, lng: -73.9856, icon: exploreIcon, name: 'Empire State Building',
       desc: `${when('Sat 18 July · Afternoon')}<br>Book timed entry at esbnyc.com${mapsLink(40.7484,-73.9856)}` },
-    { lat: 40.6892, lng: -74.0445, icon: exploreIcon, name: 'Statue of Liberty',
+    { cat: 'explore', lat: 40.6892, lng: -74.0445, icon: exploreIcon, name: 'Statue of Liberty',
       desc: `${when('Wed 22 July · 8:30am first ferry')}<br>Book at statuecruises.com${mapsLink(40.6892,-74.0445)}` },
-    { lat: 40.7829, lng: -73.9654, icon: exploreIcon, name: 'Central Park',
+    { cat: 'explore', lat: 40.7829, lng: -73.9654, icon: exploreIcon, name: 'Central Park',
       desc: `${when('Sat 18 July · Morning')}<br>Rowboats, Bethesda Fountain, Strawberry Fields${mapsLink(40.7829,-73.9654)}` },
-    { lat: 40.5749, lng: -73.9857, icon: exploreIcon, name: 'Coney Island',
+    { cat: 'explore', lat: 40.5749, lng: -73.9857, icon: exploreIcon, name: 'Coney Island',
       desc: `${when('Tue 21 July · All day')}<br>Luna Park · Cyclone · Nathan's Famous · Beach${mapsLink(40.5749,-73.9857)}` },
-    { lat: 40.7571, lng: -73.8458, icon: exploreIcon, name: 'Citi Field — Mets vs Dodgers ✓',
+    { cat: 'explore', lat: 40.7571, lng: -73.8458, icon: exploreIcon, name: 'Citi Field — Mets vs Dodgers ✓',
       desc: `${when('Fri 24 July · 7:10pm')}<br>Confirmed home game · Book at mlb.com${mapsLink(40.7571,-73.8458)}` },
-    { lat: 40.7498, lng: -73.8472, icon: exploreIcon, name: 'Unisphere — Flushing Meadows',
+    { cat: 'explore', lat: 40.7498, lng: -73.8472, icon: exploreIcon, name: 'Unisphere — Flushing Meadows',
       desc: `${when('Fri 24 July · Afternoon')}<br>Iconic 12-storey steel globe from the 1964 World's Fair${mapsLink(40.7498,-73.8472)}` },
-    { lat: 40.7527, lng: -73.8468, icon: exploreIcon, name: 'USTA Billie Jean King National Tennis Center',
+    { cat: 'explore', lat: 40.7527, lng: -73.8468, icon: exploreIcon, name: 'USTA Billie Jean King National Tennis Center',
       desc: `${when('Fri 24 July · Afternoon')}<br>Home of the US Open · Arthur Ashe Stadium visible from outside${mapsLink(40.7527,-73.8468)}` },
-    { lat: 40.7061, lng: -73.9969, icon: exploreIcon, name: 'Brooklyn Bridge',
+    { cat: 'explore', lat: 40.7061, lng: -73.9969, icon: exploreIcon, name: 'Brooklyn Bridge',
       desc: `${when('Sun 19 July · Afternoon')}<br>Walk from Manhattan → DUMBO (free)${mapsLink(40.7061,-73.9969)}` },
-    { lat: 40.7033, lng: -73.9881, icon: exploreIcon, name: 'DUMBO',
+    { cat: 'explore', lat: 40.7033, lng: -73.9881, icon: exploreIcon, name: 'DUMBO',
       desc: `${when('Sun 19 July · Afternoon')}<br>Skyline views · Jane's Carousel · Grimaldi's${mapsLink(40.7033,-73.9881)}` },
-    { lat: 40.7480, lng: -74.0048, icon: exploreIcon, name: 'The High Line',
+    { cat: 'explore', lat: 40.7480, lng: -74.0048, icon: exploreIcon, name: 'The High Line',
       desc: `${when('Any day — free, always open')}<br>Elevated park on a former railway line${mapsLink(40.7480,-74.0048)}` },
-    { lat: 40.7398, lng: -73.9903, icon: exploreIcon, name: 'Flatiron Building',
+    { cat: 'explore', lat: 40.7398, lng: -73.9903, icon: exploreIcon, name: 'Flatiron Building',
       desc: `${when('Fri 24 July · Morning')}<br>One of NYC's most iconic landmarks${mapsLink(40.7398,-73.9903)}` },
-    { lat: 40.7092, lng: -73.9600, icon: exploreIcon, name: 'Domino Park',
+    { cat: 'explore', lat: 40.7092, lng: -73.9600, icon: exploreIcon, name: 'Domino Park',
       desc: `${when('Fri 17 July · Afternoon')}<br>Williamsburg waterfront · Manhattan skyline views${mapsLink(40.7092,-73.9600)}` },
 
     // Food
-    { lat: 40.7135, lng: -73.9612, icon: foodIcon, name: 'Peter Luger Steak House',
+    { cat: 'food', lat: 40.7135, lng: -73.9612, icon: foodIcon, name: 'Peter Luger Steak House',
       desc: `${when('Fri 17 July · Dinner')}<br>178 Broadway, Williamsburg · Cash only · Book ahead${mapsLink(40.7135,-73.9612)}` },
-    { lat: 40.7178, lng: -73.9502, icon: foodIcon, name: 'Lilia',
+    { cat: 'food', lat: 40.7178, lng: -73.9502, icon: foodIcon, name: 'Lilia',
       desc: `${when('Fri 17 July · Dinner (alternative)')}<br>567 Union Ave, Williamsburg${mapsLink(40.7178,-73.9502)}` },
-    { lat: 40.7158, lng: -73.9970, icon: foodIcon, name: 'Chinatown',
+    { cat: 'food', lat: 40.7158, lng: -73.9970, icon: foodIcon, name: 'Chinatown',
       desc: `${when('Sun 19 July · Lunch')}<br>Nom Wah Tea Parlor or Joe's Shanghai${mapsLink(40.7158,-73.9970)}` },
-    { lat: 40.7427, lng: -73.9893, icon: foodIcon, name: 'Eataly Flatiron',
+    { cat: 'food', lat: 40.7427, lng: -73.9893, icon: foodIcon, name: 'Eataly Flatiron',
       desc: `${when('Fri 24 July · Lunch')}<br>200 5th Ave · Italian food hall${mapsLink(40.7427,-73.9893)}` },
-    { lat: 40.7289, lng: -73.9896, icon: foodIcon, name: "McSorley's Old Ale House",
+    { cat: 'food', lat: 40.7289, lng: -73.9896, icon: foodIcon, name: "McSorley's Old Ale House",
       desc: `${when('Fri 24 July · Afternoon')}<br>15 E 7th St · NYC's oldest Irish bar · Cash only${mapsLink(40.7289,-73.9896)}` },
-    { lat: 40.7272, lng: -73.9839, icon: foodIcon, name: 'Nevada Smiths',
+    { cat: 'food', lat: 40.7272, lng: -73.9839, icon: foodIcon, name: 'Nevada Smiths',
       desc: `${when('Sat 18 July · Evening (WC 3rd Place Playoff)')}<br>100 3rd Ave, East Village${mapsLink(40.7272,-73.9839)}` },
-    { lat: 40.7222, lng: -73.9874, icon: foodIcon, name: "Katz's Delicatessen",
+    { cat: 'food', lat: 40.7222, lng: -73.9874, icon: foodIcon, name: "Katz's Delicatessen",
       desc: `${when('Any day — Lower East Side')}<br>Best pastrami in New York${mapsLink(40.7222,-73.9874)}` },
-    { lat: 40.7301, lng: -74.0020, icon: foodIcon, name: "Joe's Pizza",
+    { cat: 'food', lat: 40.7301, lng: -74.0020, icon: foodIcon, name: "Joe's Pizza",
       desc: `${when('Any day — West Village')}<br>7 Carmine St · The classic NYC slice${mapsLink(40.7301,-74.0020)}` },
-    { lat: 40.7408, lng: -73.9883, icon: foodIcon, name: 'Shake Shack (original)',
+    { cat: 'food', lat: 40.7408, lng: -73.9883, icon: foodIcon, name: 'Shake Shack (original)',
       desc: `${when('Any day — Madison Square Park')}<br>The original location${mapsLink(40.7408,-73.9883)}` },
   ];
 
+  // Store markers with their category for filtering
+  const mapMarkers = [];
   locations.forEach(loc => {
-    L.marker([loc.lat, loc.lng], { icon: loc.icon })
+    const marker = L.marker([loc.lat, loc.lng], { icon: loc.icon })
       .addTo(map)
       .bindPopup(`<strong style='font-size:14px'>${loc.name}</strong><br>${loc.desc}`, { maxWidth: 260 });
+    mapMarkers.push({ marker, cat: loc.cat });
   });
+
+  // ── Legend filter ─────────────────────────────────────────
+  let activeMapFilter = null;
+
+  function filterMap(category) {
+    const same = activeMapFilter === category;
+    activeMapFilter = same ? null : category;
+
+    mapMarkers.forEach(({ marker, cat }) => {
+      const icon = marker._icon;
+      if (!icon) return;
+      if (activeMapFilter === null || cat === activeMapFilter) {
+        icon.style.opacity = '1';
+        icon.style.transform = icon.style.transform.replace(' scale(1.25)', '') + (cat === activeMapFilter ? ' scale(1.25)' : '');
+        icon.style.filter = cat === activeMapFilter ? 'drop-shadow(0 0 5px rgba(255,255,255,0.85))' : '';
+        icon.style.zIndex = cat === activeMapFilter ? '1000' : '';
+      } else {
+        icon.style.opacity = '0.15';
+        icon.style.filter = '';
+        icon.style.transform = icon.style.transform.replace(' scale(1.25)', '');
+      }
+    });
+
+    document.querySelectorAll('.legend-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.category === activeMapFilter);
+    });
+
+    // Fit map to visible markers when filtering on
+    if (activeMapFilter) {
+      const visible = mapMarkers.filter(m => m.cat === activeMapFilter);
+      if (visible.length === 1) {
+        map.setView(visible[0].marker.getLatLng(), 14, { animate: true });
+      } else if (visible.length > 1) {
+        const group = L.featureGroup(visible.map(m => m.marker));
+        map.fitBounds(group.getBounds().pad(0.3), { animate: true });
+      }
+    }
+  }
 
   // ── Toggle day cards ─────────────────────────────────────
   function toggleDay(id) {
