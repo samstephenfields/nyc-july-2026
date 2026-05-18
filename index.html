@@ -641,6 +641,159 @@
       border-radius: 12px;
     }
 
+    /* ── Flights section ────────────────────────────────── */
+    .flights-section {
+      background: #f4f6f9;
+      border-top: 1px solid #dde3ec;
+      border-bottom: 1px solid #dde3ec;
+      padding: 36px 24px;
+    }
+    .flights-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .flights-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    @media (max-width: 640px) { .flights-grid { grid-template-columns: 1fr; } }
+
+    .flight-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border: 1px solid #e0e6ef;
+    }
+    .flight-card-header {
+      background: #00275a;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ba-wordmark {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: white;
+    }
+    .ba-stripe {
+      height: 4px;
+      background: linear-gradient(90deg, #c8102e 0%, #c8102e 60%, #e8a0b0 100%);
+    }
+    .flight-card-body {
+      padding: 20px 24px 22px;
+    }
+    .flight-direction {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 14px;
+    }
+    .flight-route {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .flight-airport {
+      text-align: center;
+      flex: 1;
+    }
+    .flight-iata {
+      font-size: 34px;
+      font-weight: 700;
+      color: #00275a;
+      line-height: 1;
+      font-family: Arial, sans-serif;
+      letter-spacing: -1px;
+    }
+    .flight-city {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+    .flight-arrow {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #c8102e;
+    }
+    .flight-arrow-line {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #ddd 0%, #c8102e 100%);
+      border-radius: 1px;
+    }
+    .flight-arrow-head {
+      font-size: 16px;
+      color: #c8102e;
+      margin-top: -6px;
+    }
+    .flight-times {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .flight-time-block { text-align: center; flex: 1; }
+    .flight-time {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+    }
+    .flight-time-label {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      color: #aaa;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .flight-duration {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #888;
+      text-align: center;
+      flex: 1;
+      padding-top: 4px;
+    }
+    .flight-divider {
+      border: none;
+      border-top: 1px dashed #e0e0e0;
+      margin: 0 -24px 14px;
+    }
+    .flight-meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .flight-meta-item {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #666;
+    }
+    .flight-meta-item strong {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 1px;
+    }
+
     /* ── Password gate ───────────────────────────────────── */
     #auth-overlay {
       display: none;
@@ -814,6 +967,102 @@
       <div class="weather-error">Loading weather data…</div>
     </div>
     <div class="weather-meta" id="weather-meta"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ FLIGHTS ════════════════════ -->
+<div class="flights-section">
+  <div class="flights-inner">
+    <div class="section-title" style="margin-bottom:0">Flights · British Airways</div>
+    <div class="flights-grid">
+
+      <!-- Inbound -->
+      <div class="flight-card">
+        <div class="flight-card-header">
+          <span class="ba-wordmark">British Airways</span>
+          <span style="font-family:Arial,sans-serif;font-size:11px;color:#90c4e8;letter-spacing:1px">INBOUND</span>
+        </div>
+        <div class="ba-stripe"></div>
+        <div class="flight-card-body">
+          <div class="flight-direction">Friday 17 July 2026</div>
+          <div class="flight-route">
+            <div class="flight-airport">
+              <div class="flight-iata">LHR</div>
+              <div class="flight-city">London Heathrow</div>
+            </div>
+            <div class="flight-arrow">
+              <div class="flight-arrow-line"></div>
+              <div class="flight-arrow-head">›</div>
+            </div>
+            <div class="flight-airport">
+              <div class="flight-iata">JFK</div>
+              <div class="flight-city">New York</div>
+            </div>
+          </div>
+          <div class="flight-times">
+            <div class="flight-time-block">
+              <div class="flight-time">—</div>
+              <div class="flight-time-label">Departs</div>
+            </div>
+            <div class="flight-duration">~8 hrs<br>direct</div>
+            <div class="flight-time-block">
+              <div class="flight-time">12:29</div>
+              <div class="flight-time-label">Arrives ET</div>
+            </div>
+          </div>
+          <hr class="flight-divider">
+          <div class="flight-meta">
+            <div class="flight-meta-item"><strong>Airline</strong>British Airways</div>
+            <div class="flight-meta-item"><strong>Terminal</strong>T5 Heathrow · T7 JFK</div>
+            <div class="flight-meta-item"><strong>Baggage</strong>Check airline app</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Return -->
+      <div class="flight-card">
+        <div class="flight-card-header">
+          <span class="ba-wordmark">British Airways</span>
+          <span style="font-family:Arial,sans-serif;font-size:11px;color:#90c4e8;letter-spacing:1px">RETURN</span>
+        </div>
+        <div class="ba-stripe"></div>
+        <div class="flight-card-body">
+          <div class="flight-direction">Saturday 25 July 2026</div>
+          <div class="flight-route">
+            <div class="flight-airport">
+              <div class="flight-iata">JFK</div>
+              <div class="flight-city">New York</div>
+            </div>
+            <div class="flight-arrow">
+              <div class="flight-arrow-line"></div>
+              <div class="flight-arrow-head">›</div>
+            </div>
+            <div class="flight-airport">
+              <div class="flight-iata">LHR</div>
+              <div class="flight-city">London Heathrow</div>
+            </div>
+          </div>
+          <div class="flight-times">
+            <div class="flight-time-block">
+              <div class="flight-time">19:20</div>
+              <div class="flight-time-label">Departs ET</div>
+            </div>
+            <div class="flight-duration">~7 hrs<br>direct</div>
+            <div class="flight-time-block">
+              <div class="flight-time">07:20</div>
+              <div class="flight-time-label">Arrives BST +1</div>
+            </div>
+          </div>
+          <hr class="flight-divider">
+          <div class="flight-meta">
+            <div class="flight-meta-item"><strong>Airline</strong>British Airways</div>
+            <div class="flight-meta-item"><strong>Terminal</strong>T7 JFK · T5 Heathrow</div>
+            <div class="flight-meta-item"><strong>Depart by</strong>4:15pm from hotel</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
