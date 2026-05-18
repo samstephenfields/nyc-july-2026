@@ -641,6 +641,64 @@
       border-radius: 12px;
     }
 
+    /* ── Highlights section ─────────────────────────────── */
+    .highlights-section {
+      background: #1b3a5c;
+      padding: 36px 24px;
+    }
+    .highlights-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .highlights-section .section-title {
+      color: #90c4e8;
+      border-bottom-color: rgba(255,255,255,0.1);
+      margin-bottom: 24px;
+    }
+    .highlights-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+    .highlight-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      text-decoration: none;
+      color: inherit;
+      min-width: 180px;
+    }
+    .highlight-card:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.28);
+      transform: translateY(-2px);
+    }
+    .highlight-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .highlight-label {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.3;
+    }
+    .highlight-sub {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #90c4e8;
+      margin-top: 2px;
+    }
+
     /* ── Flights section ────────────────────────────────── */
     .flights-section {
       background: #f4f6f9;
@@ -926,15 +984,6 @@
   <div class="hero-eyebrow">Lydia's 30th Birthday</div>
   <h1>New York City</h1>
   <div class="hero-subtitle">17 – 25 July 2026</div>
-  <div class="hero-pills">
-    <span class="pill" onclick="jumpToDay('day-17')">✈ 8 Nights</span>
-    <span class="pill" onclick="jumpToSection('accommodation')">🏨 2 Hotels</span>
-    <span class="pill" onclick="jumpToDay('day-19')">⚽ World Cup Final</span>
-    <span class="pill" onclick="jumpToSection('book-in-advance')">🎭 2 Broadway Shows</span>
-    <span class="pill" onclick="jumpToDay('day-24')">⚾ Mets vs Dodgers</span>
-    <span class="pill" onclick="jumpToDay('day-21')">🏖 Coney Island</span>
-    <span class="pill" onclick="jumpToDay('day-22')">♨ Spa Day</span>
-  </div>
   <div class="hero-countdown" id="hero-countdown">
     <div class="countdown-unit"><span class="countdown-num" id="cd-days">--</span><span class="countdown-lbl">Days</span></div>
     <div class="countdown-sep">·</div>
@@ -1057,6 +1106,56 @@
             <div class="flight-meta-item"><strong>Airline</strong>British Airways</div>
             <div class="flight-meta-item"><strong>Terminal</strong>T7 JFK · T5 Heathrow</div>
           </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ HIGHLIGHTS ════════════════════ -->
+<div class="highlights-section">
+  <div class="highlights-inner">
+    <div class="section-title">Highlights</div>
+    <div class="highlights-grid">
+
+      <div class="highlight-card" onclick="jumpToDay('day-19')">
+        <div class="highlight-icon">⚽</div>
+        <div>
+          <div class="highlight-label">World Cup Final</div>
+          <div class="highlight-sub">Sunday 19 July</div>
+        </div>
+      </div>
+
+      <div class="highlight-card" onclick="jumpToDay('day-20')">
+        <div class="highlight-icon">🎭</div>
+        <div>
+          <div class="highlight-label">2 Broadway Shows</div>
+          <div class="highlight-sub">Gatsby &amp; Two Strangers</div>
+        </div>
+      </div>
+
+      <div class="highlight-card" onclick="jumpToDay('day-21')">
+        <div class="highlight-icon">🎡</div>
+        <div>
+          <div class="highlight-label">Coney Island</div>
+          <div class="highlight-sub">Tuesday 21 July</div>
+        </div>
+      </div>
+
+      <div class="highlight-card" onclick="jumpToDay('day-24')">
+        <div class="highlight-icon">⚾</div>
+        <div>
+          <div class="highlight-label">Mets vs Dodgers</div>
+          <div class="highlight-sub">Friday 24 July · 7:10pm</div>
+        </div>
+      </div>
+
+      <div class="highlight-card" onclick="jumpToDay('day-22')">
+        <div class="highlight-icon">♨</div>
+        <div>
+          <div class="highlight-label">Spa Day</div>
+          <div class="highlight-sub">Wednesday 22 July</div>
         </div>
       </div>
 
